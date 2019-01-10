@@ -3,6 +3,19 @@ import Header from './Header/Header';
 import authService from '../services/api/AuthServices';
 import LoadingPage from '../pages/LoadingPage';
 import NotAccess from '../pages/NotAccess';
+import { createStyles, WithStyles, withStyles } from '@material-ui/core';
+
+const styles = createStyles({
+  root: {
+    display: 'flex',
+    flexDirection: 'column',
+    height:'100vh'
+  },
+  container: {
+    flexGrow: 1,
+    height:'fit-content'
+  }
+});
 
 type States = {
   isLoadAccess: boolean
@@ -12,7 +25,8 @@ type States = {
 type PrivateComponentProps = {
   Component: React.ComponentType<any>
   id: string
-};
+}
+  & WithStyles<typeof styles>;
 
 class PrivateComponent extends React.Component<PrivateComponentProps, States>{
   constructor(props: PrivateComponentProps) {
@@ -31,10 +45,13 @@ class PrivateComponent extends React.Component<PrivateComponentProps, States>{
     if (!this.state.isLoadAccess) {
       return <LoadingPage />
     }
-    return <div>
+    const { classes } = this.props;
+    return <div className={classes.root}>
       <Header />
-      <this.props.Component id={this.props.id} />
+      <div className={classes.container}>
+        <this.props.Component id={this.props.id} />
+      </div>
     </div>;
   }
 }
-export default PrivateComponent;
+export default withStyles(styles)(PrivateComponent);

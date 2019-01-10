@@ -13,6 +13,11 @@ import layerUtils from '../map-lib/support/LayerHelper';
 // ESRI
 import { connect } from 'react-redux';
 import { AllModelReducer } from '../reducers';
+import { createStyles, WithStyles, withStyles } from '@material-ui/core';
+
+const styles = createStyles({
+  root: { height: '100%', width: '100%' }
+});
 
 type States = {
 };
@@ -28,7 +33,7 @@ type DispatchToProps = {
 
 type Props = {
 
-} & DispatchToProps & StateToProps;
+} & DispatchToProps & StateToProps & WithStyles<typeof styles>;
 
 class QLMLPage extends BasePage<Props, States> {
   constructor(props: any) {
@@ -42,15 +47,16 @@ class QLMLPage extends BasePage<Props, States> {
   }
 
   render() {
-      return (
-        <div className={this.props.id}>
-          <MapComponent
-            loadMapDiv={this.loadMapDiv.bind(this)}
-            layerInfos={this.props.layerInfos}
-            view={this.props.view}
-          />
-        </div>
-      );
+    const {classes}=this.props;
+    return (
+      <div className={classes.root}>
+        <MapComponent
+          loadMapDiv={this.loadMapDiv.bind(this)}
+          layerInfos={this.props.layerInfos}
+          view={this.props.view}
+        />
+      </div>
+    );
   }
 
   private loadMapDiv(div: HTMLDivElement) {
@@ -81,4 +87,4 @@ const mapStateToProps = (state: AllModelReducer): StateToProps => ({
 });
 
 
-export default connect(mapStateToProps, { initViewDiv })(QLMLPage);
+export default connect(mapStateToProps, { initViewDiv })(withStyles(styles)(QLMLPage));

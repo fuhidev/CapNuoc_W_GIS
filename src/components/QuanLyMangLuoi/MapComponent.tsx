@@ -20,6 +20,7 @@ import LayerInfo from '../../models/LayerInfo';
 import layerUtil from '../../map-lib/support/LayerHelper';
 import { SERVICE_PRINT } from '../../constants/map';
 import { LAYER } from '../../constants/map';
+
 type Props = {
   view?: __esri.MapView | __esri.SceneView,
   loadMapDiv: (mapDiv: HTMLDivElement) => void,
@@ -189,8 +190,8 @@ class QuanLyMangLuoiComponent extends React.Component<Props, States> {
 
   render() {
     return (
-      <div>
-        <div className="mapDiv"
+      <div className="mapDiv">
+        <div 
           ref={
             (element: HTMLDivElement) => this.mapDiv = element
           }

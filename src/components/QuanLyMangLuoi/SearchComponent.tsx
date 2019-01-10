@@ -1,24 +1,66 @@
 import * as React from 'react';
 import {
-  Paper, SelectField, MenuItem,
-  RaisedButton, Snackbar, Stepper, Step, StepLabel,
+  Paper, MenuItem,
+  Stepper, Step, StepLabel,
   LinearProgress,
-  FlatButton,
-} from 'material-ui';
-import { MuiThemeProvider } from 'material-ui/styles';
-import ReactTable, { RowInfo } from 'react-table';
+  Button,
+  Select,
+  FormControl,
+  InputLabel,
+  WithStyles,
+  createStyles,
+  Theme,
+  withStyles
+} from '@material-ui/core';
 import DownloadCSVComponent from '../material-ui/DownLoadCSV';
-
+import SketchSearch from './SketchSearch';
+import SketchSearchViewModel from '../../map-lib/widgets/SketchSearchViewModel';
 // ESRI
 import FeatureLayer from '../../map-lib/layers/FeatureLayer';
 import HighlightGraphic from '../../map-lib/support/HighlightGraphic';
-
+import geometryEngine = require('esri/geometry/geometryEngine')
 // APP
-import * as moment from '../../modules/moment';
-import Item from '../../components/material-ui/LayerFieldItem';
+import Item from '../material-ui/LayerFieldItem';
+import ReactTable, { RowInfo } from 'react-table';
+import * as queryHelper from '../../map-lib/support/queryHelper';
+const styles = (theme: Theme) => createStyles({
+  root: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    width: 360
+
+  },
+  title: {
+    fontSize: 30,
+    fontWeight: 700,
+    fontFamily: `'Segoe UI', Tahoma, Geneva, Verdana, sans-serif`,
+    color: theme.palette.primary.main,
+    textAlign: 'center',
+    lineHeight: 1.5
+  },
+  btnGroup: {
+    padding: '7px 0 17px 0'
+  },
+  statistic: {
+    padding: 15,
+    width: '100%',
+    maxHeight: 'calc(100vh - 200px)',
+    overflowY: 'auto'
+  },
+  search: { padding: 10 },
+  resultContainer: {
+    padding: 10
+  },
+  resultContainerTable: {
+    minHeight: 395,
+    maxHeight: 'calc(100vh - 245px)',
+    overflow: 'auto',
+  }
+});
+
 type States = {
   results?: any[],
-  snackbar: string;
   stepIndex: number;
   isLoading: boolean;
   error?: string;
@@ -29,66 +71,66 @@ type States = {
 
 type Props = {
   view: __esri.MapView
-};
+} & WithStyles<typeof styles>;
 class SearchComponent extends React.Component<Props, States> {
   private highlightGraphic: HighlightGraphic;
+  private sketchSearch: SketchSearchViewModel;
   constructor(props: Props) {
     super(props);
     this.state = {
-      snackbar: '',
       stepIndex: 0,
       isLoading: false,
       lstLayer: []
     };
+    this.sketchSearch = new SketchSearchViewModel({ view: props.view });
   }
 
   render() {
     const {
-      snackbar,
       stepIndex
     } = this.state;
+    const { classes } = this.props;
     return (
-      <MuiThemeProvider>
-        <div>
-          <div className="tool-search" tabIndex={stepIndex}>
-            <Paper>
-              <Stepper activeStep={stepIndex}>
-                <Step>
-                  <StepLabel>Thông tin tìm kiếm</StepLabel>
-                </Step>
-                <Step>
-                  <StepLabel>Kết quả tìm kiếm</StepLabel>
-                </Step>
-              </Stepper>
-              <div>{this.getStepContent()}</div>
-              <div className="btn-group">
-                <FlatButton
-                  label="Quay lại"
-                  disabled={stepIndex === 0}
-                  onClick={this.handlePrevious.bind(this)}
-                  style={{ marginRight: 12 }}
-                />
-                <RaisedButton
-                  label="Tìm kiếm"
-                  disabled={stepIndex === 1}
-                  primary={true}
-                  onClick={this.onSubmitClick.bind(this)}
-                />
-              </div>
-            </Paper>
-          </div >
-          <Snackbar
-            autoHideDuration={4000}
-            open={snackbar.length > 0}
-            message={snackbar}
-            onRequestClose={e => this.setState({ snackbar: '' })}
-          />
-        </div>
-      </MuiThemeProvider >
+      <div>
+        <div className={classes.root} tabIndex={stepIndex}>
+          <Paper>
+            <Stepper activeStep={stepIndex}>
+              <Step>
+                <StepLabel>Thông tin tìm kiếm</StepLabel>
+              </Step>
+              <Step>
+                <StepLabel>Kết quả tìm kiếm</StepLabel>
+              </Step>
+            </Stepper>
+            <div>{this.getStepContent()}</div>
+            <div className={classes.btnGroup}>
+              <Button
+                disabled={stepIndex === 0}
+                onClick={this.handlePrevious.bind(this)}
+                style={{ marginRight: 12 }}
+                variant="text"
+              >
+                Quay lại
+              </Button>
+              <Button
+                variant="contained"
+                color="primary"
+                disabled={stepIndex === 1}
+                onClick={this.onSubmitClick.bind(this)}
+              >Tìm kiếm</Button>
+              {/* <Toggle
+                label="Hiển thị vị trí"
+                alt="Nếu hiển thị sẽ làm chậm tốc độ tìm kiếm"
+                /> */}
+            </div>
+          </Paper>
+        </div >
+      </div>
     );
   }
 
-  private onChangeSelectedFeature(e: any, index: number, value: string) {
+  private onChangeSelectedFeature(event: React.ChangeEvent<HTMLSelectElement>) {
+    const value = event.target.value;
     // tạo search fields bao gồm tất cả thuộc tính của layer
     const { lstLayer } = this.state;
     const selectedLayer = lstLayer.find(f => f.id === value);
@@ -104,6 +146,9 @@ class SearchComponent extends React.Component<Props, States> {
   }
 
   private handlePrevious() {
+    if (this.highlightGraphic) {
+      this.highlightGraphic.clear();
+    }
     this.setState({
       stepIndex: 0
     });
@@ -134,15 +179,28 @@ class SearchComponent extends React.Component<Props, States> {
    * @param value Giá trị
    */
   private onChange(name: string, value: any) {
-    let searchFields = this.state.searchFields;
-    if (searchFields) {
-      searchFields[name] = value;
-      // this.convertValue(name, value);
+    let attributes = { ...this.state.searchFields };
+
+    attributes[name] = value;
+
+    // nếu giá trị thay đổi là subtype thì cập nhật tất cả các thành phần
+    // liên quan là null
+    const layer = this.state.selectedLayer as __esri.FeatureLayer;
+    if (layer.typeIdField === name) {
+      const subtype = layer.types[0];
+      if (subtype) {
+        // lọc fieldName để cập nhật lại giá trị
+        for (const fieldName in subtype.domains) {
+          if (fieldName && fieldName != name) {
+            attributes[fieldName] = null;
+          }
+        }
+      }
     }
-    this.setState({
-      searchFields: { ...this.state.searchFields, }
-    });
+
+    this.setState({ searchFields: attributes });
   }
+
 
   /**
    * Giao diện khi chuyển bước
@@ -150,33 +208,48 @@ class SearchComponent extends React.Component<Props, States> {
   private getStepContent() {
     const { selectedLayer, stepIndex,
       error, isLoading, results, lstLayer } = this.state;
+    const { classes } = this.props;
 
     if (stepIndex === 0) {
-      return <div className="statistic">
-        <SelectField
-          fullWidth={true}
-          floatingLabelText="Chọn lớp dữ liệu"
-          value={selectedLayer ? selectedLayer.id : null}
-          onChange={this.onChangeSelectedFeature.bind(this)}
-        >
-          {
-            lstLayer &&
-            lstLayer.map(m =>
-              <MenuItem key={m.id} value={m.id} primaryText={m.title} />
-            )
-          }
-        </SelectField>
+      return <div className={classes.statistic}>
+        <FormControl fullWidth >
+          <InputLabel htmlFor="lopdulieu">Chọn lớp dữ liệu</InputLabel>
+          <Select
+            fullWidth={true}
+            value={selectedLayer ? selectedLayer.id : ''}
+            onChange={this.onChangeSelectedFeature.bind(this)}
+            inputProps={{ name: 'lopdulieu', id: 'lopdulieu' }}
+          >
+            <MenuItem value="">
+              <em>None</em>
+            </MenuItem>
+            {
+              lstLayer &&
+              lstLayer.map(m =>
+                <MenuItem key={m.id} value={m.id} >{m.title}</MenuItem>
+              )
+            }
+          </Select>
+        </FormControl>
+        <SketchSearch
+          onDrawPolygonClick={this.sketchSearch.onDrawPolygonClick.bind(this.sketchSearch)}
+          onDrawRectangleClick={this.sketchSearch.onDrawRectangleClick.bind(this.sketchSearch)}
+          onDrawCircleWithCentroidClick={this.sketchSearch.onDrawCircleWithCentroidClick.bind(this.sketchSearch)}
+          onDrawCircleClick={this.sketchSearch.onDrawCircleClick.bind(this.sketchSearch)}
+          onDrawPolylineClick={this.sketchSearch.onDrawPolylineClick.bind(this.sketchSearch)}
+          onClearClick={this.sketchSearch.onClearClick.bind(this.sketchSearch)}
+        />
         {this.renderForm()}
       </div>;
     } else if (stepIndex === 1) {
-      return <Paper className="result-container">
-        {isLoading && <LinearProgress />}
+      return <Paper className={classes.resultContainer}>
+       {isLoading && <LinearProgress />}
         {error && <div className="error-message">{error}</div>}
-        <div className="title">{selectedLayer ? selectedLayer.title : 'Không xác định'}</div>
+        <div className={classes.title}>{selectedLayer ? selectedLayer.title : 'Không xác định'}</div>
         {results &&
-          <div>
+          <div className={classes.resultContainerTable}>
             <div style={{ textAlign: 'right' }}>
-              {/* <a href={} download={selectedLayer ? selectedLayer.title : 'VAW'} >Tải xuống</a> */}
+              {/* <a href={} download={selectedLayer ? selectedLayer.title : 'clw'} >Tải xuống</a> */}
               <DownloadCSVComponent datas={results} title={selectedLayer ? selectedLayer.title : 'Kết quả tìm kiếm'} />
             </div>
             <ReactTable
@@ -256,22 +329,45 @@ class SearchComponent extends React.Component<Props, States> {
           if (field.type === 'oid') { continue; }
           const value = searchFields[field.name];
           if (value) {
-            if (field.type === 'string') {
-              where.push(`${field.name} like N'%${value}%'`);
-            } else if (field.type === 'date') {
-              const date = moment.formatddmmyyyy(value);
-              where.push(`${field.name} = date'${date}'`);
-            } else { where.push(`${field.name} like ${value}`); }
+            switch (field.type) {
+              case 'string':
+                where.push(`${field.name} like N'%${value}%'`);
+                break;
+              case 'date':
+                const date = queryHelper.formatDate(new Date(value));
+                where.push(`${field.name} = date'${date}'`);
+                break;
+              case 'small-integer':
+              case 'integer':
+              case 'single':
+              case 'double':
+              case 'long':
+                where.push(`${field.name} = ${value}`);
+                break;
+              default:
+                break;
+            }
           }
         }
 
+        let query = selectedLayer.createQuery();
+        query.returnGeometry = true;
+        query.outSpatialReference = view.spatialReference;
+        query.outFields = ['*'];
+        query.where = where.join(' AND ');
+        if (this.sketchSearch && this.sketchSearch.graphicsSearch
+          && this.sketchSearch.graphicsSearch.length > 0) {
+          const union = geometryEngine.union(this.sketchSearch.graphicsSearch.toArray());
+          if (union) query.geometry = union;
+        }
+
         // truy vấn dữ liệu
-        const results = await selectedLayer.queryFeatures({
-          returnGeometry: true,
-          outSpatialReference: view.spatialReference,
-          outFields: ['*'],
-          where: where.join(' AND ')
-        });
+        const results = await selectedLayer.queryFeatures(query);
+
+        // nếu chưa hiển thị thì mở chế độ hiển thị
+        if (!selectedLayer.visible) {
+          selectedLayer.visible = true;
+        }
 
         // highlight
         this.highlightGraphic.addAll(results.features);
@@ -344,4 +440,4 @@ class SearchComponent extends React.Component<Props, States> {
     }
   }
 }
-export default SearchComponent;
+export default withStyles(styles)(SearchComponent);

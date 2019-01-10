@@ -1,10 +1,14 @@
 import * as React from 'react';
 import {
-  Paper, SelectField, MenuItem,
-  RaisedButton, Snackbar,
+  Paper, Select, MenuItem,
+  Button,
   LinearProgress,
-} from 'material-ui';
-import { MuiThemeProvider } from 'material-ui/styles';
+  FormControl,
+  InputLabel,
+  WithStyles,
+  createStyles,
+  withStyles
+} from '@material-ui/core';
 import ReactTable from 'react-table';
 import DownloadComponent from '../material-ui/DownLoadCSV';
 
@@ -12,8 +16,33 @@ import DownloadComponent from '../material-ui/DownLoadCSV';
 import FeatureLayer from '../../map-lib/layers/FeatureLayer';
 import geometryEngine = require('esri/geometry/geometryEngine');
 // APP
-import * as moment from '../../modules/moment';
 import Item from '../../components/material-ui/LayerFieldItem';
+import * as moment from 'moment/moment';
+
+const styles = createStyles({
+  root: {
+    padding: 17,
+    display: 'flex',
+    overflowY: 'hidden',
+    height: 510,
+    flexDirection: 'row'
+  },
+  formContainer: {
+    overflowY: 'auto',
+    minWidth:300
+  },
+  resultsContainer: {
+    flexGrow: 1
+  },
+  statistic: {
+  },
+  resultContainer: {
+
+  },
+  errorMessage: {
+
+  }
+});
 
 type States = {
   results?: any[],
@@ -27,7 +56,7 @@ type States = {
 
 type Props = {
   view: __esri.MapView
-};
+} & WithStyles<typeof styles>;
 class StatisticComponent extends React.Component<Props, States> {
   constructor(props: Props) {
     super(props);
@@ -40,28 +69,18 @@ class StatisticComponent extends React.Component<Props, States> {
   }
 
   render() {
-    const {
-      snackbar
-    } = this.state;
+    const { classes } = this.props;
     return (
-      <MuiThemeProvider>
-        <div>
-          <Paper className="tool-statistic">
-            <div className="form-container">
-              {this.getStepContent(0)}
-            </div>
-            <div className="results-container">
-              {this.getStepContent(1)}
-            </div>
-          </Paper>
-          <Snackbar
-            autoHideDuration={4000}
-            open={snackbar.length > 0}
-            message={snackbar}
-            onRequestClose={e => this.setState({ snackbar: '' })}
-          />
-        </div>
-      </MuiThemeProvider >
+      <div>
+        <Paper className={classes.root}>
+          <div className={classes.formContainer}>
+            {this.getStepContent(0)}
+          </div>
+          <div className={classes.resultsContainer}>
+            {this.getStepContent(1)}
+          </div>
+        </Paper>
+      </div>
     );
   }
 
@@ -86,7 +105,8 @@ class StatisticComponent extends React.Component<Props, States> {
     });
   }
 
-  private onChangeSelectedFeature(e: any, index: number, value: string) {
+  private onChangeSelectedFeature(event: React.ChangeEvent<HTMLSelectElement>) {
+    const value = event.target.value;
     // tạo search fields bao gồm tất cả thuộc tính của layer
     const { lstLayer } = this.state;
     const selectedLayer = lstLayer.find(f => f.id === value);
@@ -118,14 +138,26 @@ class StatisticComponent extends React.Component<Props, States> {
    * @param value Giá trị
    */
   private onChange(name: string, value: any) {
-    let searchFields = this.state.searchFields;
-    if (searchFields) {
-      searchFields[name] = value;
-      // this.convertValue(name, value);
+    let attributes = { ...this.state.searchFields };
+
+    attributes[name] = value;
+
+    // nếu giá trị thay đổi là subtype thì cập nhật tất cả các thành phần
+    // liên quan là null
+    const layer = this.state.selectedLayer as __esri.FeatureLayer;
+    if (layer.typeIdField === name) {
+      const subtype = layer.types[0];
+      if (subtype) {
+        // lọc fieldName để cập nhật lại giá trị
+        for (const fieldName in subtype.domains) {
+          if (fieldName && fieldName != name) {
+            attributes[fieldName] = null;
+          }
+        }
+      }
     }
-    this.setState({
-      searchFields: { ...this.state.searchFields, }
-    });
+
+    this.setState({ searchFields: attributes });
   }
 
   /**
@@ -134,35 +166,42 @@ class StatisticComponent extends React.Component<Props, States> {
   private getStepContent(stepIndex: number) {
     const { selectedLayer,
       error, isLoading, results, lstLayer } = this.state;
+    const { classes } = this.props;
 
     if (stepIndex === 0) {
-      return <div className="statistic">
-        <SelectField
-          fullWidth={true}
-          floatingLabelText="Chọn lớp dữ liệu"
-          value={selectedLayer ? selectedLayer.id : null}
-          onChange={this.onChangeSelectedFeature.bind(this)}
-        >
-          {
-            lstLayer &&
-            lstLayer.map(m =>
-              <MenuItem key={m.id} value={m.id} primaryText={m.title} />
-            )
-          }
-        </SelectField>
+      return <div className={classes.statistic}>
+        <FormControl fullWidth>
+          <InputLabel htmlFor="lopdulieu">Chọn lớp dữ liệu</InputLabel>
+          <Select
+            fullWidth={true}
+            value={selectedLayer ? selectedLayer.id : ''}
+            onChange={this.onChangeSelectedFeature.bind(this)}
+            inputProps={{ name: 'lopdulieu', id: 'lopdulieu' }}
+          >
+            <MenuItem value="">
+              <em>None</em>
+            </MenuItem>
+            {
+              lstLayer &&
+              lstLayer.map(m =>
+                <MenuItem key={m.id} value={m.id} >{m.title}</MenuItem>
+              )
+            }
+          </Select>
+        </FormControl>
         {this.renderForm()}
       </div>;
     } else if (stepIndex === 1) {
-      return <Paper className="result-container">
+      return <Paper className={classes.resultContainer}>
         {isLoading && <LinearProgress />}
-        {error && <div className="error-message">{error}</div>}
-        <RaisedButton
+        {error && <div className={classes.errorMessage}>{error}</div>}
+        <Button
+          variant="contained"
+          color="primary"
           fullWidth={true}
           style={{ marginBottom: 7 }}
-          label="Thống kê"
-          primary={true}
           onClick={this.onSubmitClick.bind(this)}
-        />
+        >Thống kê</Button>
         {results &&
           <div>
             <div style={{ textAlign: 'right' }}>
@@ -178,7 +217,7 @@ class StatisticComponent extends React.Component<Props, States> {
         }
 
       </Paper>;
-    } else { return <div className="error-message">Có lỗi xảy ra</div>; }
+    } else { return <div className={classes.errorMessage}>Có lỗi xảy ra</div>; }
   }
 
   componentDidMount() {
@@ -254,7 +293,7 @@ class StatisticComponent extends React.Component<Props, States> {
             if (field.type === 'string') {
               where.push(`${field.name} like N'%${value}%'`);
             } else if (field.type === 'date') {
-              const date = moment.formatddmmyyyy(value);
+              const date = moment(new Date(value)).format('YYYY-MM-DD');
               where.push(`${field.name} = date'${date}'`);
             } else { where.push(`${field.name} like ${value}`); }
             tieuChi.push(`${field.alias} = ${value}`);
@@ -298,7 +337,8 @@ class StatisticComponent extends React.Component<Props, States> {
               STT: this.state.results ? this.state.results.length + 1 : 1,
               TieuChi: tieuChi.join(', '),
               ChieuDaiGIS: length + ' m',
-              ChieuDaiTT: features.map(m => m.attributes.CHIEUDAI || 0).reduce((a, b) => a + b),
+              ChieuDaiTT: features.length>0?
+              features.map(m => m.attributes.CHIEUDAI || 0).reduce((a, b) => a + b):0,
               SoLuong: features.length
             });
             this.setState({
@@ -339,4 +379,4 @@ class StatisticComponent extends React.Component<Props, States> {
     }
   }
 }
-export default StatisticComponent;
+export default withStyles(styles)(StatisticComponent);

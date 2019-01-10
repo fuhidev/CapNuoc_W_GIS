@@ -1,12 +1,9 @@
+import { UserResponse } from '../services/main/model';
+import * as decode from 'jwt-decode';
+const ITEM_NAME = 'user';
 class Auth {
-
-  /**
-   * Authenticate a user. Save a token string in Local Storage
-   *
-   * @param {string} token
-   */
-  static authenticateUser(token: string) {
-    localStorage.setItem('token', token);
+  static authenticateUser(user: UserResponse) {
+    localStorage.setItem(ITEM_NAME, JSON.stringify(user));
   }
 
   /**
@@ -15,7 +12,10 @@ class Auth {
    * @returns {boolean}
    */
   static isUserAuthenticated() {
-    return localStorage.getItem('token') !== null;
+    var token = Auth.getToken();
+    if (token && !this.isTokenExpired(token))
+      return true;
+    return false;
   }
 
   /**
@@ -23,25 +23,38 @@ class Auth {
    *
    */
   static deauthenticateUser() {
-    localStorage.removeItem('token');
-    localStorage.removeItem('username');
+    localStorage.removeItem(ITEM_NAME);
   }
 
-  /**
-   * Get a token value.
-   *
-   * @returns {string}
-   */
+  static getUser(): UserResponse | undefined {
+    try {
+      var item = localStorage.getItem(ITEM_NAME);
+      if (item) {
+        var user = JSON.parse(item) as UserResponse;
+        return user;
+      }
+      return undefined;
+    } catch (error) {
+      return undefined;
+    }
 
+  }
   static getToken() {
-    return localStorage.getItem('token');
+    var user = this.getUser();
+    return user ? user.token : undefined;
   }
-
-  static getUsername() {
-    return localStorage.getItem('username');
-  }
-  static setUsername(username:string) {
-    localStorage.setItem('username', username);
+  static isTokenExpired(token: string) {
+    try {
+      const decoded = decode(token) as any;
+      if (decoded.exp < Date.now() / 1000) { // Checking if token is expired. N
+        return true;
+      }
+      else
+        return false;
+    }
+    catch (err) {
+      return false;
+    }
   }
 
 }

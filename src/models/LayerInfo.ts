@@ -8,7 +8,10 @@ export default interface LayerInfo {
   IsCreate: boolean;
   IsDelete: boolean;
   IsEdit: boolean;
-  OutFields?: string;
+  IsVisible: boolean;
+  OutFields: string;
+  QueryFields: string;
+  EditFields: string;
   Definition?: string;
   Url: string;
   GroupLayer?: GroupLayer;

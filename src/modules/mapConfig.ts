@@ -6,10 +6,10 @@ const DEFAULT_LOADER_URL = `${DEFAULT_WORKER_URL}dojo/dojo-lite.js`;
 (esriConfig.workers as any).loaderUrl = DEFAULT_LOADER_URL;
 esriConfig.workers.loaderConfig = {
   baseUrl: `${DEFAULT_WORKER_URL}dojo`,
-  has: {
-    "esri-featurelayer-webgl": 1
-  },
   locale: 'vi',
+  has: {
+    'esri-featurelayer-webgl': 1
+  },
   packages: [
     { name: 'esri', location: DEFAULT_WORKER_URL + 'esri' },
     { name: 'dojo', location: DEFAULT_WORKER_URL + 'dojo' },

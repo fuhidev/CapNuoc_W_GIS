@@ -1,14 +1,19 @@
 import * as React from 'react';
-import Auth from '../modules/Auth';
 import { withRouter, RouteComponentProps } from 'react-router-dom';
+import { connect } from 'react-redux';
+import { logout } from '../services/main/action';
+type DispatchToProps = {
+  logout: () => void
+};
 
-class LogoutFunction extends React.Component<RouteComponentProps<null>, {}> {
+type Props = {
+} & RouteComponentProps<null> & DispatchToProps;
+
+class LogoutFunction extends React.Component<Props, {}> {
 
   componentDidMount() {
-    // deauthenticate user
-    Auth.deauthenticateUser();
-    // change the current URL to / after logout
-    this.props.history.push('/');
+    this.props.logout();
+    this.props.history.push('/login');
   }
 
   render() {
@@ -20,4 +25,8 @@ class LogoutFunction extends React.Component<RouteComponentProps<null>, {}> {
   }
 }
 
-export default withRouter(LogoutFunction);
+const mapDispatchToProps = (dispatch: Function): DispatchToProps => ({
+  logout: () => dispatch(logout())
+});
+
+export default withRouter(connect(null, mapDispatchToProps)(LogoutFunction));

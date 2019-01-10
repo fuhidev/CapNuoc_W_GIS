@@ -1,41 +1,48 @@
 export const BASEMAP = {
-  INDEX_TIM_DUONG:0,
-  INDEX_HANH_CHINH: 5
+  INDEX_HANH_CHINH: 2
 };
 
+export const SERVICE_PRINT = 'https://ditagis.com/arcgis/rest/services/Utilities/PrintingTools/GPServer/Export%20Web%20Map%20Task';
+
 export const LAYER = {
-  BASE_MAP: 'BASEMAP',
-  DMA: 'dmaLYR',
+  BASE_MAP: 'basemap',
   BE_CHUA: 'bechuaLYR',
-  DONG_HO_KHACH_HANG: 'dhkhLYR',
-  DIEM_CUOI_ONG: 'diemcuoiongLYR',
-  DIEM_SU_CO: 'diemsucoLYR',
-  DIEM_XA_CAN: 'diemxacanLYR',
+  BE_VIEN_THONG: 'bevienthongLYR',
+  BIEN_BAO: 'bienbaoLYR',
+  BTS: 'btsLYR',
+  CAP_VIEN_THONG: 'capvienthongLYR',
+  CAU_DUONG_BO: 'cauduongboLYR',
+  CAY_XANH: 'cayxanhLYR',
+  CONG_SO: 'congsoLYR',
+  DEN_CHIEU_SANG: 'denchieusangLYR',
+  DEN_TIN_HIEU: 'dentinhieuLYR',
+  DIEM_DAU_NOI: 'diemdaunoiLYR',
   DONG_HO_TONG: 'donghotongLYR',
-  MOI_NOI: 'moinoiLYR',
-  ONG_NGANH: 'ongnganhLYR',
+  GIAI_PHAN_CACH: 'giaiphancachLYR',
+  GIAO_LO: 'giaoloLYR',
+  HO_GA: 'hogaLYR',
+  MAT_SONG: 'matsongLYR',
+  NHA_MAY_NUOC: 'nhamaynuocLYR',
   ONG_PHAN_PHOI: 'ongphanphoiLYR',
   ONG_TRUYEN_DAN: 'ongtruyendanLYR',
-  THUY_DAI: 'thuydaiLYR',
-  THAP_CAT_AP: 'thapcatapLYR',
-  TRU_HONG: 'truhongLYR',
-  VAN_BUOC: 'vanbuocLYR',
+  TD_CHIEUSANG: 'tdchieusangLYR',
+  TIEU_DAO: 'tieudaoLYR',
+  TIM_SONG: 'timsongLYR',
+  TRAM_BOM: 'trambomLYR',
+  TUYEN_DAY_DIEN_NGAM: 'tuyendaydienngamLYR',
+  TUYEN_DAY_DIEN_NGAM_NOI: 'tuyendaydienngamnoiLYR',
+  TUYEN_DAY_DIEN_NOI: 'tuyendaydiennoiLYR',
+  TUYEN_ONG_THOAT_NUOC: 'tuyenongthoatnuocLYR',
   VAN: 'vanLYR',
-  TBL_VAT_TU: 'vattuTBL',
-  TBL_HO_SO_VAT_TU: 'hosovattuTBL'
+  DIEM_SU_CO: 'sucoLYR'
 };
 export const MAP = {
-  CENTER: [106.6546293, 10.7554041],
-  ZOOM: 12
+  CENTER: [105.940810,10.251717],
+  ZOOM: 14
 };
 
 export const APP_LAYER = {
-  qlsc: [LAYER.BASE_MAP, LAYER.DIEM_SU_CO, LAYER.TRU_HONG, LAYER.ONG_NGANH, LAYER.ONG_PHAN_PHOI,
-  LAYER.ONG_TRUYEN_DAN, LAYER.DMA, LAYER.TBL_HO_SO_VAT_TU, LAYER.DONG_HO_KHACH_HANG],
-  tnsc: [LAYER.BASE_MAP, LAYER.DIEM_SU_CO,LAYER.DMA],
   qlml: ['*'],
-  qltt: [LAYER.BASE_MAP, LAYER.DMA, LAYER.DONG_HO_KHACH_HANG, LAYER.DONG_HO_TONG,
-  LAYER.DIEM_SU_CO, LAYER.VAN_BUOC, LAYER.VAN,
-  LAYER.ONG_NGANH, LAYER.ONG_PHAN_PHOI],
-  ttslkh: [LAYER.BASE_MAP, LAYER.DONG_HO_KHACH_HANG]
+  qlsc: ['*'],
+  tnsc:[LAYER.DIEM_SU_CO,LAYER.BASE_MAP]
 };

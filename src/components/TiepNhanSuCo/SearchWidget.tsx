@@ -12,14 +12,13 @@ type States = {
 };
 
 type Props = {
-  view?: __esri.MapView,
+  view?: __esri.MapView | __esri.SceneView,
   searchRef?: (e: __esri.widgetsSearch) => void
   selectResult?: (e: SelectResult) => void
 };
 
 class SearchWidget extends React.Component<Props, States> {
-  private search: Search;
-  private div: HTMLDivElement;
+  private div: HTMLDivElement | undefined;
   constructor(params: any) {
     super(params);
 
@@ -28,7 +27,7 @@ class SearchWidget extends React.Component<Props, States> {
     };
   }
   render() {
-    return <div style={{width:'100%'}} ref={(e: HTMLDivElement) =>
+    return <div ref={(e: HTMLDivElement) =>
       this.div = e
     }> </div >;
   }
@@ -36,19 +35,17 @@ class SearchWidget extends React.Component<Props, States> {
     var search = new Search({
       view: this.props.view,
       container: this.div,
-      popupEnabled:false,
+      popupEnabled: false,
       resultGraphicEnabled: false,
-      allPlaceholder: 'Nhập vị trí hoặc địa điểm',
-      autoSelect:true
+      allPlaceholder: 'Nhập vị trí hoặc địa điểm'
     });
 
     if (this.props.selectResult) {
       search.on('select-result', this.props.selectResult);
     }
 
-    this.search = search;
     if (this.props.searchRef) {
-      this.props.searchRef(this.search);
+      this.props.searchRef(search);
     }
   }
 }

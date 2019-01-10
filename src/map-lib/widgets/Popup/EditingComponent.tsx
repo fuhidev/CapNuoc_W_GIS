@@ -1,14 +1,16 @@
 import * as React from 'react';
-import { RaisedButton, Snackbar, Card, CardHeader, CardText } from 'material-ui';
-import { MuiThemeProvider } from 'material-ui/styles';
+import {
+  Button, Typography
+} from '@material-ui/core';
 import { LayerFieldInfo } from '../Popup';
 import Item from '../../../components/material-ui/LayerFieldItem';
-interface Props {
-  layerFieldsInfos: LayerFieldInfo[];
-  graphic: __esri.Graphic;
-  onSave: (attributes: object) => Promise<boolean>;
-  capNhatHinhAnh: (form: HTMLFormElement) => Promise<__esri.FeatureEditResult>;
-}
+
+type Props = {
+  layerFieldsInfos: LayerFieldInfo[],
+  graphic: __esri.Graphic,
+  onSave: (attributes: object) => Promise<boolean>,
+  capNhatHinhAnh: (form: HTMLFormElement) => Promise<__esri.FeatureEditResult>,
+} ;
 
 interface States {
   attributes: object | null;
@@ -92,117 +94,101 @@ class EditingComponent extends React.Component<Props, States> {
   }
 
   render() {
-    const { layerFieldsInfos, } = this.props;
-    const { attributes, snackbar, attachments, isLoadingThemHinhAnh } = this.state;
+    const { layerFieldsInfos } = this.props;
+    const { attributes, attachments, isLoadingThemHinhAnh } = this.state;
     const layer = this.props.graphic.layer as __esri.FeatureLayer;
     return (
       attributes &&
-      <MuiThemeProvider>
+      <div>
+        <Typography variant="h6">
+          Thuộc tính
+        </Typography>
         <div>
-          <Card>
-            <CardHeader
-              title="Thuộc tính"
-              actAsExpander={true}
-              showExpandableButton={true}
-            />
-            <CardText expandable={true}>
-              {
-                layerFieldsInfos.filter(f => f.isEditable).map(_layerField => {
-                  let layerField = { ..._layerField };
-                  // nếu có subtype
-                  if (layer.typeIdField) {
-                    const types = layer.types; // lấy types
+          {
+            layerFieldsInfos.filter(f => f.isEditable).map(_layerField => {
+              let layerField = { ..._layerField };
+              // nếu có subtype
+              if (layer.typeIdField) {
+                const types = layer.types; // lấy types
 
-                    // nếu layerField chính là typeIDField thì cập nhật domain cho layerField
-                    // để hiển thị select trong popup
-                    if (layer.typeIdField === layerField.name) {
-                      // tạo domain ảo
-                      const domain = {
-                        type: 'coded-value',
-                        codedValues: types.map(m => ({ code: m.id, name: m.name }))
-                      } as __esri.CodedValueDomain;
-                      layerField.domain = domain;
-                    }
+                // nếu layerField chính là typeIDField thì cập nhật domain cho layerField
+                // để hiển thị select trong popup
+                if (layer.typeIdField === layerField.name) {
+                  // tạo domain ảo
+                  const domain = {
+                    type: 'coded-value',
+                    codedValues: types.map(m => ({ code: m.id, name: m.name }))
+                  } as __esri.CodedValueDomain;
+                  layerField.domain = domain;
+                }
 
-                    // nếu attributes của typeID có giá trị
-                    if (attributes[layer.typeIdField] || attributes[layer.typeIdField] === 0) {
-                      // tìm subtype có giá trị id trùng với giá trị attributes của typeID
-                      const subtype = types.find(f => f.id === attributes[layer.typeIdField]);
-                      // nêu tồn tại
-                      if (subtype) {
-                        // nếu field nằm trong types
-                        if (layerField.name in subtype.domains) {
-                          const domain = subtype.domains[layerField.name] as __esri.Domain;
+                // nếu attributes của typeID có giá trị
+                if (attributes[layer.typeIdField] || attributes[layer.typeIdField] === 0) {
+                  // tìm subtype có giá trị id trùng với giá trị attributes của typeID
+                  const subtype = types.find(f => f.id === attributes[layer.typeIdField]);
+                  // nêu tồn tại
+                  if (subtype) {
+                    // nếu field nằm trong types
+                    if (layerField.name in subtype.domains) {
+                      const domain = subtype.domains[layerField.name] as __esri.Domain;
 
-                          // nếu inherit thì lấy domain gốc
-                          if (domain.type === 'inherited') {
-                            layerField.domain = layer.getFieldDomain(layerField.name);
-                          } else {
-                            layerField.domain = domain; // gán domain cho domai mới theo subtype
-                          }
-                        }
+                      // nếu inherit thì lấy domain gốc
+                      if (domain.type === 'inherited') {
+                        layerField.domain = layer.getFieldDomain(layerField.name);
+                      } else {
+                        layerField.domain = domain; // gán domain cho domai mới theo subtype
                       }
                     }
                   }
-                  return (
-                    <Item
-                      key={layer.id + '_' + layerField.name}
-                      layerField={layerField as any}
-                      value={attributes[layerField.name]}
-                      onChange={this.onChange.bind(this)}
-                    />
-                  );
-                })
+                }
               }
-              <RaisedButton label="Cập nhật" primary={true}
-                icon={<span className="esri-icon-check-mark"></span>}
-                fullWidth={true}
-                onClick={this.onSave.bind(this)} />
-            </CardText>
-          </Card>
-          {
-            layer.hasAttachments &&
-            <Card>
-              <CardHeader
-                title="Hình ảnh"
-                actAsExpander={true}
-                showExpandableButton={true}
-              />
-              <CardText expandable={true}>
-                <div>
-                  <form encType="multipart/form-data" method="post"
-                    onChange={this.capNhatHinhAnh.bind(this)}
-                  >
-                    <input hidden name="f" value="json" />
-                    {isLoadingThemHinhAnh && <span className="esri-icon-loading-indicator"></span>}
-                    <input type="file" name="attachment" />
-                  </form>
-                  <div style={{ display: 'flex', flexDirection: 'column' }}>
-                    {attachments.map(m =>
-                      <div style={{ display: 'flex', flexDirection: 'row' }}>
-                        <a
-                          style={{ flexGrow: 1 }}
-                          title={m.name} target="_blank" key={m.id} href={m.url}>{m.name}</a>
-                        <span
-                          style={{ cursor: 'pointer' }}
-                          onClick={() => this.xoaHinhAnh(m.id)}
-                          className="esri-icon-trash"
-                        ></span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </CardText>
-            </Card>
-
+              return (
+                <Item
+                  key={layer.id + '_' + layerField.name}
+                  layerField={layerField as any}
+                  value={attributes[layerField.name]}
+                  onChange={this.onChange.bind(this)}
+                />
+              );
+            })
           }
-          <Snackbar
-            message={snackbar} autoHideDuration={4000}
-            onRequestClose={() => this.setState({ snackbar: '' })}
-            open={snackbar.length > 0}
-          />
+          <Button
+            variant="contained"
+            color="primary"
+            fullWidth
+            onClick={this.onSave.bind(this)} >
+            Cập nhật
+            <span className="esri-icon-check-mark"></span>
+          </Button>
         </div>
-      </MuiThemeProvider>
+        <Typography variant="title">Tệp đính kèm</Typography>
+        {
+          layer.hasAttachments &&
+          <div>
+            <form encType="multipart/form-data" method="post"
+              onChange={this.capNhatHinhAnh.bind(this)}
+            >
+              <input hidden name="f" value="json" />
+              {isLoadingThemHinhAnh && <span className="esri-icon-loading-indicator"></span>}
+              <input type="file" name="attachment" />
+            </form>
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+              {attachments.map(m =>
+                <div style={{ display: 'flex', flexDirection: 'row' }}>
+                  <a
+                    style={{ flexGrow: 1 }}
+                    title={m.name} target="_blank" key={m.id} href={m.url}>{m.name}</a>
+                  <span
+                    style={{ cursor: 'pointer' }}
+                    onClick={() => this.xoaHinhAnh(m.id)}
+                    className="esri-icon-trash"
+                  ></span>
+                </div>
+              )}
+            </div>
+          </div>
+        }
+      </div >
 
     );
   }
@@ -222,7 +208,7 @@ class EditingComponent extends React.Component<Props, States> {
         id: result.objectId, name: (form.lastChild as HTMLInputElement).value.split(/(\\|\/)/g).pop(),
         url: `${layer.url}/${layer.layerId}/${attributes.OBJECTID}/attachments/${result.objectId}`
       } as __esri.AttachmentInfo;
-      // const attachments = await layer.queryAttachments({ objectIds: [attributes.OBJECTID] });
+      // const attachments = await layer.queryAttachments({objectIds: [attributes.OBJECTID] });
       this.setState({
         snackbar: 'Thêm hình ảnh thành công',
         isLoadingThemHinhAnh: false,

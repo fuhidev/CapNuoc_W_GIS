@@ -1,9 +1,11 @@
 import * as React from 'react';
 import {
-  SelectField, MenuItem,
+  Select, MenuItem,
   TextField,
-} from 'material-ui';
-import DatePicker from '../../components/material-ui/DatePicker';
+  FormControl,
+  InputLabel,
+} from '@material-ui/core';
+import DatePicker, { TimeType } from './DatePicker';
 const Item = (props: {
   layerField: __esri.Field,
   value: string | number,
@@ -18,23 +20,29 @@ const Item = (props: {
 
     return (
       <div>
-        <SelectField
-          value={value}
-          fullWidth={true}
-          onChange={(e: any, index: number, _value: any) => {
-            const value1 = _value !== undefined && _value !== null ?
-              (layerField.type === 'integer' || layerField.type === 'small-integer') ?
-                parseInt(_value, undefined) :
-                (layerField.type === 'double' || layerField.type === 'single') ?
-                  parseFloat(_value) : _value : null;
-            onChange(layerField.name, value1);
-          }}
-        >
-          <MenuItem value={null} primaryText={layerField.alias || layerField.name} />
-          {
-            codedValues.map(m => <MenuItem key={domain.name + '_' + m.code} value={m.code} primaryText={m.name} />)
-          }
-        </SelectField>
+        <FormControl fullWidth >
+          <InputLabel htmlFor={layerField.name}>{layerField.alias || layerField.name}</InputLabel>
+          <Select
+            name={layerField.name}
+            value={value != undefined ? value : ''}
+            fullWidth={true}
+            onChange={(event: React.ChangeEvent<HTMLSelectElement>) => {
+              let _value = event.target.value;
+              const value1 = _value !== undefined && _value !== null && _value !== '' ?
+                (layerField.type === 'integer' || layerField.type === 'small-integer') ?
+                  parseInt(_value, undefined) :
+                  (layerField.type === 'double' || layerField.type === 'single') ?
+                    parseFloat(_value) : _value : null;
+              onChange(layerField.name, value1);
+            }}
+          >
+            <MenuItem value=""><em>None</em></MenuItem>
+            {
+              codedValues.map(m => <MenuItem key={domain.name + '_' + m.code} value={m.code} >{m.name}</MenuItem>)
+            }
+          </Select>
+        </FormControl>
+
       </div >
     );
   } else {
@@ -48,7 +56,7 @@ const Item = (props: {
           <div>
             <TextField
               type={layerField.type === 'string' ? 'text' : 'number'}
-              floatingLabelText={layerField.alias || layerField.name}
+              label={layerField.alias || layerField.name}
               value={value !== null && value !== undefined ? value : ''}
               fullWidth={true}
               onChange={(e: any) => {
@@ -62,14 +70,18 @@ const Item = (props: {
             />
           </div>);
       case 'date':
-        return <div><DatePicker
-          floatingLabelText={layerField.alias || layerField.name}
-          fullWidth={true}
-          value={Number.isInteger(value as any) ? new Date(value) : new Date()}
-          onChange={(event: any, _value: any) => {
-            onChange(layerField.name, (_value as Date).getTime());
-          }}
-        /></div>;
+        return <div>
+          <DatePicker
+            // mode={Mode["12h"]}
+            inputProps={
+              { label: layerField.alias, fullWidth: true }
+            }
+            type={TimeType.Date}
+            value={value && Number.isInteger(value as any) ? new Date(value) : undefined}
+            onChange={(date?: Date) => {
+              onChange(layerField.name, date ? date.getTime() : undefined);
+            }}
+          /></div>;
       default:
         return <div></div>;
     }

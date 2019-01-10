@@ -2,18 +2,17 @@ import Graphic = require('esri/Graphic');
 import SimpleMarkerSymbol = require('esri/symbols/SimpleMarkerSymbol');
 import SimpleLineSymbol = require('esri/symbols/SimpleLineSymbol');
 import SimpleFillSymbol = require('esri/symbols/SimpleFillSymbol');
-import View = require('esri/views/MapView');
 import Color = require('esri/Color');
 interface ConstructorProperies {
   symbolMarker?: any | SimpleMarkerSymbol; symbolLine?: any | SimpleLineSymbol; symbolPlg?: any | SimpleFillSymbol;
 }
 class HighlightGraphic {
-  view: View;
+  view: __esri.MapView|__esri.SceneView;
   symbolMarker: SimpleMarkerSymbol;
   symbolLine: SimpleLineSymbol;
   symbolPlg: SimpleFillSymbol;
   tmpGraphics: Array<Graphic>;
-  constructor(view: View, options?: ConstructorProperies) {
+  constructor(view: __esri.MapView|__esri.SceneView, options?: ConstructorProperies) {
     options = options || {};
     this.view = view;
     this.symbolMarker = options.symbolMarker || new SimpleMarkerSymbol({

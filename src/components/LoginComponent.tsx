@@ -1,41 +1,53 @@
 import * as React from 'react';
-import User from '../models/User';
-import { Card, TextField, RaisedButton } from 'material-ui';
+import User from '../services/user/model';
+import { Card, TextField, Button, createStyles, WithStyles, Theme, withStyles, Typography } from '@material-ui/core';
+
+const styles = (theme: Theme) => createStyles({
+  container: {
+    margin: '20px auto',
+    textAlign: 'center',
+    maxWidth: 700
+  },
+  title: {
+    fontFamily: 'Roboto, sans-serif',
+    fontWeight:700,
+    marginTop:15,
+    color: theme.palette.primary.main
+  },
+  cardHeading: {
+    padding: 16
+  },
+
+});
 
 type Props = {
   onSubmit: (event: object) => void
   onChange: (event: object) => void
-  successMessage: string
   user: User,
-  errors: string
-};
+} & WithStyles<typeof styles>;
 type States = {
 
 };
 
 class LoginComponent extends React.Component<Props, States> {
   render() {
-    const { user, successMessage, onChange, onSubmit, errors } = this.props;
+    const { user, onChange, onSubmit, classes } = this.props;
     return (
-      <Card className="container">
+      <Card className={classes.container}>
         <form action="/" onSubmit={onSubmit}>
-          <h2 className="card-heading">Đăng nhập</h2>
-
-          {successMessage && <p className="success-message">{successMessage}</p>}
-          {errors && <p className="error-message">{errors}</p>}
-
-          <div className="field-line">
+          <Typography className={classes.title} > Đăng nhập</Typography>
+          <div className={classes.cardHeading}>
             <TextField
-              floatingLabelText="Tài khoản"
+              label="Tài khoản"
               name="username"
               onChange={onChange}
               value={user.username}
             />
           </div>
 
-          <div className="field-line">
+          <div className={classes.cardHeading}>
             <TextField
-              floatingLabelText="Mật khẩu"
+              label="Mật khẩu"
               type="password"
               name="password"
               onChange={onChange}
@@ -43,8 +55,14 @@ class LoginComponent extends React.Component<Props, States> {
             />
           </div>
 
-          <div className="button-line">
-            <RaisedButton type="submit" label="Đăng nhập" primary />
+          <div className={classes.cardHeading}>
+            <Button
+              variant="contained"
+              color="primary"
+              type="submit"
+            >
+              Đăng nhập
+            </Button>
           </div>
         </form>
       </Card>
@@ -52,4 +70,4 @@ class LoginComponent extends React.Component<Props, States> {
   }
 }
 
-export default LoginComponent;
+export default withStyles(styles)(LoginComponent);

@@ -1,34 +1,4 @@
-body {
-  margin: 0;
-  font-size: 16px;
-}
-
-a {
-  color: #00bcd4;
-  font-weight: bold;
-  text-decoration: none;
-  transition: color 0.4s;
-}
-
-a:hover {
-  color: #1976d2;
-}
-
-.text-center {
-  text-align: center;
-}
-
-.error-message {
-  padding: 0 16px;
-  color: tomato;
-}
-
-.success-message {
-  padding: 0 16px;
-  color: green;
-}
-
-.react-router-link{
-  font-size: 14px;
-  font-weight: normal
-}
+$color-main: #16a085;
+$color-second:#27ae60;
+@import "main";
+@import "map";

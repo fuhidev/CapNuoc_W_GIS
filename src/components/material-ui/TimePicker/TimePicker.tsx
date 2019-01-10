@@ -1,0 +1,220 @@
+import * as React from 'react'
+import { Mode } from './Model';
+import { withStyles, StyleRulesCallback, WithStyles } from '@material-ui/core/styles'
+import { duration, easing } from '@material-ui/core/styles/transitions'
+import { getContrastRatio, fade } from '@material-ui/core/styles/colorManipulator'
+import classNames from 'classnames'
+import Clock from './Clock'
+import { formatHours, twoDigits } from './util'
+
+const styles: StyleRulesCallback = (theme) => ({
+  root: {
+    width: 288,
+    fontFamily: theme.typography.fontFamily
+  },
+  header: {
+    background: theme.palette.primary.main,
+    color: fade(getContrastRatio(theme.palette.primary.main, theme.palette.common.black) < 7 ? theme.palette.common.white : theme.palette.common.black, 0.54),
+    padding: '20px 0',
+    lineHeight: '58px',
+    fontSize: '58px',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'baseline',
+    userSelect: 'none'
+  },
+  time: {
+    transition: `all ${duration.short}ms ${easing.easeInOut}`,
+    cursor: 'pointer'
+  },
+  placeholder: {
+    flex: 1
+  },
+  ampm: {
+    display: 'flex',
+    flexDirection: 'column-reverse',
+    flex: 1,
+    fontSize: '14px',
+    lineHeight: '20px',
+    marginLeft: 16,
+    fontWeight: 700
+  },
+  select: {
+    color: getContrastRatio(theme.palette.primary.main, theme.palette.common.black) < 7 ? theme.palette.common.white : theme.palette.common.black
+  },
+  body: {
+    padding: '24px 16px',
+    background: theme.palette.background.paper
+  }
+});
+
+export type Props = {
+  /** The initial value of the time picker. */
+  defaultValue?: Date,
+  /** Sets the clock mode, 12-hour or 24-hour clocks are supported. */
+  mode: Mode,
+  /** Callback that is called with the new date (as Date instance) when the value is changed. */
+  onChange?: (value?: Date) => void,
+  /** Callback that is called when the minutes are changed. Can be used to automatically hide the picker after selecting a time. */
+  onMinutesSelected?: () => void,
+  /** The value of the time picker, for use in controlled mode. */
+  value?: Date
+};
+
+type State = {
+  select: string,
+  hours: number,
+  minutes: number
+};
+
+class TimePicker extends React.Component<Props & WithStyles<typeof styles>, State> {
+  public static defaultProps = {
+    mode: Mode["12h"]
+  };
+
+  constructor(props: Props & WithStyles<typeof styles>) {
+    super(props);
+
+    const defaultValue = new Date();
+    defaultValue.setSeconds(0);
+    defaultValue.setMilliseconds(0);
+    const time = props.value || props.defaultValue || defaultValue
+    this.state = {
+      select: 'h',
+      hours: time.getHours(),
+      minutes: time.getMinutes()
+    }
+  }
+
+  componentWillReceiveProps(nextProps: Props) {
+    if (nextProps.value != null && (!this.props.value || nextProps.value.getTime() !== this.props.value.getTime())) {
+      this.setState({
+        hours: nextProps.value.getHours(),
+        minutes: nextProps.value.getMinutes()
+      })
+    }
+  }
+
+  handleClockChange = (value: number) => {
+    if (this.state.select === 'h') {
+      if (this.props.mode === '12h') {
+        if (this.state.hours >= 12) {
+          this.setState({ hours: value === 12 ? value : value + 12 }, this.propagateChange)
+        } else {
+          this.setState({ hours: value === 12 ? 0 : value }, this.propagateChange)
+        }
+      } else {
+        this.setState({ hours: value }, this.propagateChange)
+      }
+    } else {
+      this.setState({ minutes: value }, () => {
+        this.propagateChange()
+      })
+    }
+  }
+
+  handleClockChangeDone = (e: any) => {
+    e.preventDefault() // prevent mouseUp after touchEnd
+
+    if (this.state.select === 'm') {
+      let func = this.props.onMinutesSelected;
+      if (func) {
+        setTimeout(() => {
+          if (func)
+            func();
+        }, 300)
+      }
+    } else {
+      setTimeout(() => {
+        this.setState({ select: 'm' })
+      }, 300)
+    }
+  }
+
+  editHours = () => this.setState({ select: 'h' })
+
+  editMinutes = () => this.setState({ select: 'm' })
+
+  setAm = () => {
+    if (this.state.hours >= 12) {
+      this.setState({ hours: this.state.hours - 12 }, this.propagateChange)
+    }
+  }
+
+  setPm = () => {
+    if (this.state.hours < 12) {
+      this.setState({ hours: this.state.hours + 12 }, this.propagateChange)
+    }
+  }
+
+  propagateChange = () => {
+    if (this.props.onChange != null) {
+      const date = new Date()
+      date.setHours(this.state.hours)
+      date.setMinutes(this.state.minutes)
+      date.setSeconds(0)
+      date.setMilliseconds(0)
+      this.props.onChange(date)
+    }
+  }
+
+  render() {
+    const {
+      classes,
+      mode
+    } = this.props
+
+    const clockMode = this.state.select === 'm' ? Mode.minutes : mode
+    const { minutes } = this.state
+    const { hours, isPm } = formatHours(this.state.hours, mode)
+
+    return (
+      <div className={classes.root}>
+        <div className={classes.header}>
+          <div className={classes.placeholder} />
+          <div>
+            <span
+              className={classNames(classes.time, { [classes.select]: this.state.select === 'h' && 'active' })}
+              onClick={this.editHours}
+            >
+              {twoDigits(hours)}
+            </span>
+            :
+            <span
+              className={classNames(classes.time, { [classes.select]: this.state.select === 'm' && 'active' })}
+              onClick={this.editMinutes}
+            >
+              {twoDigits(minutes)}
+            </span>
+          </div>
+          {mode === '12h' ? (
+            <div className={classes.ampm}>
+              <span
+                className={classNames(classes.time, { [classes.select]: isPm })}
+                onClick={this.setPm}
+              >
+                PM
+              </span>
+              <span
+                className={classNames(classes.time, { [classes.select]: !isPm })}
+                onClick={this.setAm}
+              >
+                AM
+              </span>
+            </div>
+          ) : (<div className={classes.placeholder} />)}
+        </div>
+        <div className={classes.body}>
+          <Clock
+            mode={clockMode}
+            onChange={this.handleClockChange}
+            value={clockMode === 'minutes' ? minutes : hours}
+            onMouseUp={this.handleClockChangeDone}
+            onTouchEnd={this.handleClockChangeDone}
+          />
+        </div>
+      </div>
+    )
+  }
+}
+export default withStyles(styles)(TimePicker);

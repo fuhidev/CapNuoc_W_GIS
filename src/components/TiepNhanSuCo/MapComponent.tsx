@@ -1,13 +1,11 @@
 // REACT
 import * as React from 'react';
-import { LinearProgress } from 'material-ui';
 
 // ESRI
 import Expand = require('esri/widgets/Expand');
 import Legend = require('esri/widgets/Legend');
+import SearchWidget = require('esri/widgets/Search');
 import Locate = require('esri/widgets/Locate');
-import HomeWidget = require('esri/widgets/Home');
-
 
 // APP
 import * as Popup from '../../map-lib/widgets/Popup';
@@ -15,20 +13,17 @@ import {
   LAYER as CST_LAYER,
 } from '../../constants/map';
 import LayerInfo from '../../models/LayerInfo';
-import LayerUtils from '../../map-lib/support/LayerUtils';
+import layerUtils from '../../map-lib/support/LayerHelper';
 
 type Props = {
-  view?: __esri.MapView,
+  view?: __esri.MapView|__esri.SceneView,
   loadMapDiv: (mapDiv: HTMLDivElement) => void,
   layerInfos?: LayerInfo[],
-  isLoading: boolean,
-  className: string
 };
 type States = {
-  isLoading: boolean
 };
 
-class ThemSuCoComponent extends React.Component<Props, States> {
+class MapComponent extends React.Component<Props, States> {
   private mapDiv: HTMLDivElement;
 
   constructor(props: Props) {
@@ -52,10 +47,9 @@ class ThemSuCoComponent extends React.Component<Props, States> {
   private initWidget(props: Props) {
     const { view, layerInfos } = props;
     if (view && layerInfos) {
-      var layerList = LayerUtils.createLayerList(view);
+      var layerList = layerUtils.createLayerList(view);
 
-      view.ui.add(new HomeWidget({ view }), 'top-left');
-
+      layerList.on('trigger-action', this.layerListTriggerAction.bind(this));
       var expand =
         new Expand({
           expandTooltip: 'Lớp dữ liệu',
@@ -94,14 +88,40 @@ class ThemSuCoComponent extends React.Component<Props, States> {
           }).toArray()
       });
 
+      // tìm kiếm
+      var search = new SearchWidget({
+        view: view,
+        searchAllEnabled: false,
+      });
+
+      view.ui.add(search, 'top-right');
+    }
+  }
+
+  private layerListTriggerAction(event: any) {
+
+    // The layer visible in the view at the time of the trigger.
+    var layer = event.item.layer;
+    if (!layer) { return; }
+    // Capture the action id.
+    var id = event.action.id;
+
+    switch (id) {
+      case 'decrease-opacity':
+        if (layer.opacity < 1) { layer.opacity += 0.25; }
+        break;
+      case 'increase-opacity':
+        if (layer.opacity > 0) { layer.opacity -= 0.25; }
+        break;
+
+      default:
+        break;
     }
   }
 
   render() {
-    const { isLoading, className } = this.props;
     return (
-      <div className={className}>
-        {isLoading && <LinearProgress />}
+      <div>
         <div className="mapDiv"
           ref={
             (element: HTMLDivElement) => this.mapDiv = element
@@ -114,4 +134,4 @@ class ThemSuCoComponent extends React.Component<Props, States> {
 
 }
 
-export default ThemSuCoComponent;
+export default MapComponent;

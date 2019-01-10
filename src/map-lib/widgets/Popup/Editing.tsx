@@ -2,20 +2,18 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import EditingComponent from './EditingComponent';
 import { LayerFieldInfo } from '../Popup';
-import Auth from '../../../modules/Auth';
 interface ConstructProperties {
-  view: __esri.MapView;
+  view: __esri.MapView | __esri.SceneView;
 }
 
 class PopupEditing {
-  private view: __esri.MapView;
+  private view: __esri.MapView | __esri.SceneView;
   constructor(params: ConstructProperties) {
     this.view = params.view;
   }
 
   public render(layerFields: LayerFieldInfo[]) {
     let div = document.createElement('div');
-
     ReactDOM.render(
       <EditingComponent
         layerFieldsInfos={layerFields}
@@ -27,15 +25,13 @@ class PopupEditing {
     this.view.popup.content = div;
   }
 
-  private async onSave(attributes: object) :Promise<boolean>{
+  private async onSave(attributes: object) {
     try {
       const layer = this.view.popup.selectedFeature.layer as __esri.FeatureLayer;
 
       var updateAttributes = {
         objectId: this.view.popup.selectedFeature.attributes.OBJECTID,
-        NGUOICAPNHAT: Auth.getUsername()
       };
-
 
       for (const key in this.view.popup.selectedFeature.attributes) {
         if (attributes[key] !== this.view.popup.selectedFeature.attributes[key]) {
@@ -93,7 +89,6 @@ class PopupEditing {
     const graphic = this.view.popup.selectedFeature,
       layer = graphic.layer as __esri.FeatureLayer
     const result = await layer.addAttachment(graphic, form);
-
     return result;
   }
 }

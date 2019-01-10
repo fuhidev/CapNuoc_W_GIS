@@ -1,0 +1,41 @@
+export const BASEMAP = {
+  INDEX_TIM_DUONG:0,
+  INDEX_HANH_CHINH: 5
+};
+
+export const LAYER = {
+  BASE_MAP: 'BASEMAP',
+  DMA: 'dmaLYR',
+  BE_CHUA: 'bechuaLYR',
+  DONG_HO_KHACH_HANG: 'dhkhLYR',
+  DIEM_CUOI_ONG: 'diemcuoiongLYR',
+  DIEM_SU_CO: 'diemsucoLYR',
+  DIEM_XA_CAN: 'diemxacanLYR',
+  DONG_HO_TONG: 'donghotongLYR',
+  MOI_NOI: 'moinoiLYR',
+  ONG_NGANH: 'ongnganhLYR',
+  ONG_PHAN_PHOI: 'ongphanphoiLYR',
+  ONG_TRUYEN_DAN: 'ongtruyendanLYR',
+  THUY_DAI: 'thuydaiLYR',
+  THAP_CAT_AP: 'thapcatapLYR',
+  TRU_HONG: 'truhongLYR',
+  VAN_BUOC: 'vanbuocLYR',
+  VAN: 'vanLYR',
+  TBL_VAT_TU: 'vattuTBL',
+  TBL_HO_SO_VAT_TU: 'hosovattuTBL'
+};
+export const MAP = {
+  CENTER: [106.6546293, 10.7554041],
+  ZOOM: 12
+};
+
+export const APP_LAYER = {
+  qlsc: [LAYER.BASE_MAP, LAYER.DIEM_SU_CO, LAYER.TRU_HONG, LAYER.ONG_NGANH, LAYER.ONG_PHAN_PHOI,
+  LAYER.ONG_TRUYEN_DAN, LAYER.DMA, LAYER.TBL_HO_SO_VAT_TU, LAYER.DONG_HO_KHACH_HANG],
+  tnsc: [LAYER.BASE_MAP, LAYER.DIEM_SU_CO,LAYER.DMA],
+  qlml: ['*'],
+  qltt: [LAYER.BASE_MAP, LAYER.DMA, LAYER.DONG_HO_KHACH_HANG, LAYER.DONG_HO_TONG,
+  LAYER.DIEM_SU_CO, LAYER.VAN_BUOC, LAYER.VAN,
+  LAYER.ONG_NGANH, LAYER.ONG_PHAN_PHOI],
+  ttslkh: [LAYER.BASE_MAP, LAYER.DONG_HO_KHACH_HANG]
+};

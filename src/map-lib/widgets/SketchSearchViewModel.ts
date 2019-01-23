@@ -9,25 +9,28 @@ type Props = {
 };
 
 export default class SketchSearchViewModel {
-  private tempGraphicsLayer: __esri.GraphicsLayer;
-  private sketchViewModel: __esri.SketchViewModel;
-  private editGraphic: __esri.Graphic;
-  private handleViewClick: IHandle;
+  private tempGraphicsLayer: __esri.GraphicsLayer | undefined;
+  private sketchViewModel: __esri.SketchViewModel | undefined;
+  private editGraphic: __esri.Graphic | undefined;
+  private handleViewClick: IHandle | undefined;
   private view: __esri.View;
-  private sketchCircleCentroid: SketchSearchCircleWithCentroid;
+  private sketchCircleCentroid: SketchSearchCircleWithCentroid | undefined;
 
   constructor(options: Props) {
     this.view = options.view;
     this.init();
-    this.sketchCircleCentroid = new SketchSearchCircleWithCentroid({
-      sketchViewModel: this.sketchViewModel,
-      view: this.view as any
-    });
+    if (this.sketchViewModel) {
+      this.sketchCircleCentroid = new SketchSearchCircleWithCentroid({
+        sketchViewModel: this.sketchViewModel,
+        view: this.view as any
+      });
+    }
   }
 
   public get graphicsSearch() {
-    if (this.tempGraphicsLayer)
+    if (this.tempGraphicsLayer) {
       return this.tempGraphicsLayer.graphics.map(m => m.geometry);
+    }
     return null;
   }
 
@@ -81,28 +84,25 @@ export default class SketchSearchViewModel {
 
   }
 
-  //*************************************************************
-  // called when this.sketchViewModel's create-complete event is fired.
-  //*************************************************************
   private addGraphic(event: any) {
     // Create a new graphic and set its geometry to
     // `create-complete` event geometry.
-    const graphic = new Graphic({
-      geometry: event.geometry,
-      symbol: this.sketchViewModel.graphic.symbol
-    });
-    this.tempGraphicsLayer.add(graphic);
+    if (this.sketchViewModel && this.tempGraphicsLayer) {
+      const graphic = new Graphic({
+        geometry: event.geometry,
+        symbol: this.sketchViewModel.graphic.symbol
+      });
+      this.tempGraphicsLayer.add(graphic);
+    }
   }
 
-  //***************************************************************
-  // called when this.sketchViewModel's update-complete or update-cancel
-  // events are fired.
-  //*************************************************************
   private updateGraphic(event: any) {
     // event.graphic is the graphic that user clicked on and its geometry
     // has not been changed. Update its geometry and add it to the layer
     event.graphic.geometry = event.geometry;
-    this.tempGraphicsLayer.add(event.graphic);
+    if (this.tempGraphicsLayer) {
+      this.tempGraphicsLayer.add(event.graphic);
+    }
 
     // set the this.editGraphic to null update is complete or cancelled.
     delete this.editGraphic;
@@ -113,43 +113,43 @@ export default class SketchSearchViewModel {
   // ************************************************************************************
 
   public onDrawPolygonClick() {
-    this.sketchViewModel.create('polygon');
+    this.sketchViewModel && this.sketchViewModel.create('polygon');
   }
 
   public onDrawRectangleClick() {
-    this.sketchViewModel.create('rectangle');
+    this.sketchViewModel && this.sketchViewModel.create('rectangle');
   }
 
   public onDrawCircleClick() {
-    this.sketchViewModel.create('circle');
+    this.sketchViewModel && this.sketchViewModel.create('circle');
   }
 
   public onDrawCircleWithCentroidClick() {
     let handle = (this.view as __esri.MapView).on('click', (e) => {
       e.stopPropagation();
-      this.sketchCircleCentroid.draw(e.mapPoint);
+      this.sketchCircleCentroid && this.sketchCircleCentroid.draw(e.mapPoint);
       handle.remove();
-    })
+    });
   }
 
   public onDrawPolylineClick() {
-    this.sketchViewModel.create('polyline');
+    this.sketchViewModel && this.sketchViewModel.create('polyline');
   }
 
   public onClearClick() {
-    this.sketchViewModel.reset();
-    this.tempGraphicsLayer.removeAll();
+    this.sketchViewModel && this.sketchViewModel.reset();
+    this.tempGraphicsLayer && this.tempGraphicsLayer.removeAll();
     delete this.editGraphic;
   }
 }
 
 class SketchSearchCircleWithCentroid {
   private sketchViewModel: SketchViewModel;
-  private centerGraphic: Graphic;
-  private edgeGraphic: Graphic;
-  private polylineGraphic: Graphic;
-  private bufferGraphic: Graphic;
-  private labelGraphic: Graphic;
+  private centerGraphic: Graphic | undefined;
+  private edgeGraphic: Graphic | undefined;
+  private polylineGraphic: Graphic | undefined;
+  private bufferGraphic: Graphic | undefined;
+  private labelGraphic: Graphic | undefined;
   private view: __esri.MapView;
   private unit: string = 'kilometers';
   constructor(props: { view: __esri.MapView, sketchViewModel: SketchViewModel, unit?: string }) {
@@ -211,7 +211,7 @@ class SketchSearchCircleWithCentroid {
                 width: 2
               }
             }
-          })
+          });
   }
 
   public draw(centroid: __esri.Point) {
@@ -239,8 +239,7 @@ class SketchSearchCircleWithCentroid {
 
       // get the length of the initial polyline and create buffer
       const length = geometryEngine.geodesicLength(polyline, this.unit);
-      const buffer = geometryEngine.geodesicBuffer(centerPoint, length,
-        this.unit) as __esri.Geometry;
+      const buffer = geometryEngine.geodesicBuffer(centerPoint, length, this.unit) as __esri.Geometry;
       // create the graphics representing the line and buffer
       this.centerGraphic = this.createGraphic(centerPoint, 'center');
       this.edgeGraphic = this.createGraphic(edgePoint, 'handle');
@@ -256,7 +255,7 @@ class SketchSearchCircleWithCentroid {
     // just move the center and edge graphics to the new location returned from search
     else {
       this.centerGraphic.geometry = centerPoint;
-      this.edgeGraphic.geometry = edgePoint;
+      if (this.edgeGraphic) { this.edgeGraphic.geometry = edgePoint; }
     }
 
     // query features that intersect the buffer
@@ -265,7 +264,7 @@ class SketchSearchCircleWithCentroid {
 
   private bufferMoveHandler(event: any) {
     let vertices: number[][] = [];
-    if (event.graphic.attributes && event.graphic.attributes.center) {
+    if (event.graphic.attributes && event.graphic.attributes.center && this.centerGraphic && this.edgeGraphic) {
       this.centerGraphic.geometry = event.geometry;
 
       const edgeScreenPoint = this.view.toScreen(this.edgeGraphic.geometry as __esri.Point);
@@ -284,7 +283,7 @@ class SketchSearchCircleWithCentroid {
     }
     // user is moving on the EDGE graphic. Resize the polyline graphic
     // and recalculate the buffer polygon
-    else if (event.graphic.attributes && event.graphic.attributes.edge) {
+    else if (event.graphic.attributes && event.graphic.attributes.edge && this.edgeGraphic && this.centerGraphic) {
       // EdgeGraphic is initially created in drawBufferPolygon() function when view is loaded
       this.edgeGraphic.geometry = event.geometry;
       vertices = [
@@ -296,7 +295,6 @@ class SketchSearchCircleWithCentroid {
     this.calculateBuffer(vertices);
   }
 
-  //Label polyline with its length
   private labelLength(geom: __esri.Geometry, length: number) {
     return new Graphic({
       geometry: geom,
@@ -316,41 +314,41 @@ class SketchSearchCircleWithCentroid {
 
   private calculateBuffer(vertices: number[][]) {
     // update the geometry of the polyline based on location of edge and center points
-    this.polylineGraphic.geometry = new Polyline({
-      paths: vertices as any,
-      spatialReference: this.view.spatialReference
-    });
-    // recalculate the polyline length and buffer polygon
-    const length = geometryEngine.geodesicLength(this.polylineGraphic.geometry,
-      this.unit);
-    const buffer = geometryEngine.geodesicBuffer(this.centerGraphic.geometry,
-      length, this.unit) as __esri.Geometry;
+    if (this.polylineGraphic && this.centerGraphic && this.labelGraphic && this.bufferGraphic && this.edgeGraphic) {
+      this.polylineGraphic.geometry = new Polyline({
+        paths: vertices as any,
+        spatialReference: this.view.spatialReference
+      });
+      // recalculate the polyline length and buffer polygon
+      const length = geometryEngine.geodesicLength(this.polylineGraphic.geometry, this.unit);
+      const buffer = geometryEngine.geodesicBuffer(this.centerGraphic.geometry, length, this.unit) as __esri.Geometry;
 
-    // query female and male age groups of the census tracts that intersect
-    // the buffer polygon on the client
-    // queryLayerViewAgeStats(buffer).then(function(newData) {
-    //   // create a population pyramid chart from the returned result
-    //   updateChart(newData);
-    // });
+      // query female and male age groups of the census tracts that intersect
+      // the buffer polygon on the client
+      // queryLayerViewAgeStats(buffer).then(function(newData) {
+      //   // create a population pyramid chart from the returned result
+      //   updateChart(newData);
+      // });
 
-    // label graphic shows the length of the polyline
-    this.labelGraphic.geometry = this.edgeGraphic.geometry;
-    (this.labelGraphic.symbol as __esri.TextSymbol).text = length.toFixed(2) + this.unit;
-    this.bufferGraphic.geometry = buffer;
+      // label graphic shows the length of the polyline
+      this.labelGraphic.geometry = this.edgeGraphic.geometry;
+      (this.labelGraphic.symbol as __esri.TextSymbol).text = length.toFixed(2) + this.unit;
+      this.bufferGraphic.geometry = buffer;
+    }
   }
 
   public clear() {
-    this.sketchViewModel.layer.removeMany([
-      this.bufferGraphic, this.polylineGraphic,
-      this.centerGraphic, this.edgeGraphic, this.labelGraphic
-    ]);
+    let graphics = [];
+    this.bufferGraphic && graphics.push(this.bufferGraphic);
+    this.polylineGraphic && graphics.push(this.polylineGraphic);
+    this.centerGraphic && graphics.push(this.centerGraphic);
+    this.edgeGraphic && graphics.push(this.edgeGraphic);
+    this.labelGraphic && graphics.push(this.labelGraphic);
+    this.sketchViewModel.layer.removeMany(graphics);
     delete this.centerGraphic;
     delete this.edgeGraphic;
     delete this.polylineGraphic;
     delete this.bufferGraphic;
     delete this.labelGraphic;
   }
-
 }
-
-

@@ -1,12 +1,14 @@
 // React
 import * as React from 'react';
-import { createStyles, WithStyles, withStyles, Tabs, Tab, LinearProgress } from '@material-ui/core';
+import { createStyles, WithStyles, withStyles, Tabs, Tab } from '@material-ui/core';
 import SearchIcon from '@material-ui/icons/Search';
 import EqualizerIcon from '@material-ui/icons/Equalizer';
+import PrintIcon from '@material-ui/icons/Print';
 
 // Component
 import StatisticComponent from './StatisticComponent';
 import SearchComponent from './SearchComponent';
+import PrintComponent from '../../map-lib/widgets/PrintComponent';
 const styles = createStyles({
   root: {
     display: 'flex',
@@ -33,7 +35,7 @@ type States = {
 };
 
 enum TabIndex {
-  TimKiem, ThongKe
+  TimKiem, ThongKe, In
 }
 
 class ToolComponent extends React.Component<Props, States>{
@@ -50,6 +52,7 @@ class ToolComponent extends React.Component<Props, States>{
       <Tabs value={tabIndex} scrollable onChange={this.handleChange.bind(this)} className={classes.tab}>
         <Tab label="Tìm kiếm" icon={<SearchIcon />} />
         <Tab label="Thống kê" icon={<EqualizerIcon />} />
+        <Tab label="In" icon={<PrintIcon />} />
       </Tabs>
       {
         tabIndex === TabIndex.TimKiem &&
@@ -67,10 +70,17 @@ class ToolComponent extends React.Component<Props, States>{
           view={view}
         />
       }
+      {
+        tabIndex === TabIndex.In &&
+        view &&
+        <PrintComponent
+          view={view}
+        />
+      }
     </div>;
   }
 
-  private handleChange(_, newValue) {
+  private handleChange(event: any, newValue: number) {
     this.setState({ tabIndex: newValue });
   }
 }

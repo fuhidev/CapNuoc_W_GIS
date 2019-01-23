@@ -2,7 +2,8 @@ export const BASEMAP = {
   INDEX_HANH_CHINH: 2
 };
 
-export const SERVICE_PRINT = 'https://ditagis.com/arcgis/rest/services/Utilities/PrintingTools/GPServer/Export%20Web%20Map%20Task';
+export const SERVICE_PRINT =
+  'https://ditagis.com/arcgis/rest/services/Utilities/PrintingTools/GPServer/Export%20Web%20Map%20Task';
 
 export const LAYER = {
   BASE_MAP: 'basemap',
@@ -37,12 +38,12 @@ export const LAYER = {
   DIEM_SU_CO: 'sucoLYR'
 };
 export const MAP = {
-  CENTER: [105.940810,10.251717],
+  CENTER: [105.940810, 10.251717],
   ZOOM: 14
 };
 
 export const APP_LAYER = {
   qlml: ['*'],
   qlsc: ['*'],
-  tnsc:[LAYER.DIEM_SU_CO,LAYER.BASE_MAP]
+  tnsc: [LAYER.DIEM_SU_CO, LAYER.BASE_MAP]
 };

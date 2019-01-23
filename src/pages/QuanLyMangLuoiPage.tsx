@@ -57,7 +57,7 @@ class QLMLPage extends BasePage<Props, States> {
 
     return (
       <div className={classes.root}>
-        <SplitterLayout primaryIndex={1} 	>
+        <SplitterLayout primaryIndex={0} secondaryInitialSize={300} 	>
           <MapComponent
             loadMapDiv={this.loadMapDiv.bind(this)}
             layerInfos={layerInfos}

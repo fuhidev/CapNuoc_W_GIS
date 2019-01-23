@@ -1,24 +1,19 @@
 // REACT
 import * as React from 'react';
-import * as ReactDOM from 'react-dom';
 
 // ESRI
 import Expand = require('esri/widgets/Expand');
 import Legend = require('esri/widgets/Legend');
 import SearchWidget = require('esri/widgets/Search');
 import Locate = require('esri/widgets/Locate');
-import Print = require('esri/widgets/Print');
 import BasemapToggle = require('esri/widgets/BasemapToggle');
 import Measure from '../../map-lib/widgets/Measure';
 import * as Popup from '../../map-lib/widgets/Popup';
 import Action = require('esri/support/actions/ActionButton');
 
 // APP
-import SearchComponent from './SearchComponent';
-import StatisticComponent from './StatisticComponent';
 import LayerInfo from '../../models/LayerInfo';
 import layerUtil from '../../map-lib/support/LayerHelper';
-import { SERVICE_PRINT } from '../../constants/map';
 import { LAYER } from '../../constants/map';
 
 type Props = {
@@ -152,17 +147,6 @@ class QuanLyMangLuoiComponent extends React.Component<Props, States> {
 
       //   view.ui.add(statisticExpand, 'top-right');
       // }
-
-      view.ui.add(new Expand({
-        content: new Print({
-          view,
-          printServiceUrl: SERVICE_PRINT
-
-        }),
-        expandIconClass: 'esri-icon-printer',
-        expandTooltip: 'In',
-        collapseTooltip: 'Đóng'
-      }), 'top-right');
 
       let basemapToggle = new BasemapToggle({ view, nextBasemap: 'osm' });
       view.ui.add(basemapToggle, 'bottom-left');

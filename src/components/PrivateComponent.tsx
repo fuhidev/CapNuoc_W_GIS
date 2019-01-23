@@ -9,18 +9,21 @@ const styles = createStyles({
   root: {
     display: 'flex',
     flexDirection: 'column',
-    height:'100vh'
+    height: '100%'
+  },
+  header: {
+    flex: '0 0 auto'
   },
   container: {
-    flexGrow: 1,
-    height:'fit-content'
+    flex: '1 1 auto',
+    height: 'calc(100vh - 64px)'
   }
 });
 
 type States = {
   isLoadAccess: boolean
   isAccess: boolean
-}
+};
 
 type PrivateComponentProps = {
   Component: React.ComponentType<any>
@@ -36,18 +39,20 @@ class PrivateComponent extends React.Component<PrivateComponentProps, States>{
   async componentWillMount() {
     const isAccess = await authService.isAccess(this.props.id);
     // if (!isAccess) push('/notaccess');
-    this.setState({ isLoadAccess: true, isAccess })
+    this.setState({ isLoadAccess: true, isAccess });
   }
   render() {
     if (this.state.isLoadAccess && !this.state.isAccess) {
-      return <NotAccess />
+      return <NotAccess />;
     }
     if (!this.state.isLoadAccess) {
-      return <LoadingPage />
+      return <LoadingPage />;
     }
     const { classes } = this.props;
     return <div className={classes.root}>
-      <Header />
+      <div className={classes.header}>
+        <Header />
+      </div>
       <div className={classes.container}>
         <this.props.Component id={this.props.id} />
       </div>

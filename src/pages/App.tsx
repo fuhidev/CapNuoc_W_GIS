@@ -1,15 +1,15 @@
-//React
+// React
 import * as React from 'react';
 import { Route, Redirect, Switch, withRouter, RouteComponentProps } from 'react-router-dom';
 import SnackbarContent from '../components/material-ui/Snackbar';
-//Component
+// Component
 import LoginPage from './LoginPage';
 import LoadingPage from './LoadingPage';
 import NotFound from './NotFound';
 import MenuPage from './MenuPage';
 import NotAccess from './NotAccess';
 import LogoutFunction from './LogoutFunction';
-import PrivateComponent from '../components/PrivateComponent';;
+import PrivateComponent from '../components/PrivateComponent';
 import {
   LinearProgress, Snackbar,
   createStyles,
@@ -17,12 +17,13 @@ import {
 } from '@material-ui/core';
 import routes from '../modules/routers';
 
-//Redux
+// Redux
 import { connect } from 'react-redux';
 import { AllModelReducer } from '../reducers';
 import { alertActions } from '../services/main/action';
 import { Alert } from '../services/main/model';
-//Module
+import QuanLyMangLuoiPage from './QuanLyMangLuoiPage';
+// Module
 
 const styles = () => createStyles({
   progress: {
@@ -46,7 +47,6 @@ type DispatchToProps = {
 type Props = {
 } & DispatchToProps & StateToProps & WithStyles<typeof styles> & RouteComponentProps<any>;
 
-
 class AppPage extends React.Component<Props, {}> {
   constructor(props: Props) {
     super(props);
@@ -61,7 +61,6 @@ class AppPage extends React.Component<Props, {}> {
       classes
     } = this.props;
 
-
     const childLoading = <div className={classes.progress}>
       <LinearProgress />
     </div>;
@@ -71,7 +70,7 @@ class AppPage extends React.Component<Props, {}> {
         vertical: 'bottom',
         horizontal: 'left',
       }}
-      open={alert.message != undefined}
+      open={alert.message !== undefined}
       autoHideDuration={alert.type && alert.type === 'error' ? undefined : 6000}
       onClose={this.handleClose}
     >

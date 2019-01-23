@@ -35,11 +35,12 @@ const MyDrawer = (props: { isOpenDrawer: boolean, onClose: () => void }) => (
       </Typography>
     </div>
   </Drawer>
-)
+);
 
 type StateToProps = {
   displayName: string,
-}
+};
+
 type DispatchToProps = {
   logout: () => void
 };
@@ -59,7 +60,6 @@ const styles = createStyles({
     marginRight: 5
   }
 });
-
 
 type Props = {
 } & RouteComponentProps<null> & DispatchToProps & StateToProps
@@ -87,7 +87,6 @@ class Header extends React.Component<Props, States> {
     }
     return title;
   }
-
 
   handleMenu = (event: any) => {
     this.setState({ anchorEl: event.currentTarget });
@@ -118,11 +117,11 @@ class Header extends React.Component<Props, States> {
               aria-label="Menu"
             // onClick={this.toggleDrawer(true)}
             >
-              <Link to="/" style={{color:'#fff'}}>
+              <Link to="/" style={{ color: '#fff' }}>
                 <MenuIcon />
               </Link>
             </IconButton>
-            <Typography variant="h6" color="inherit" className={classes.grow}>
+            <Typography variant="h6" color="inherit" className={classes.grow} noWrap>
               {title}
             </Typography>
             <div>
@@ -135,7 +134,11 @@ class Header extends React.Component<Props, States> {
                 <Typography
                   className={classes.displayName}
                   variant="button"
-                  color="inherit"> {displayName}</Typography>
+                  color="inherit"
+                  noWrap
+                >
+                  {displayName}
+                </Typography>
                 <AccountCircle />
               </IconButton>
               <Menu

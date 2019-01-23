@@ -10,7 +10,8 @@ import {
   WithStyles,
   createStyles,
   Theme,
-  withStyles
+  withStyles,
+  Grid
 } from '@material-ui/core';
 import DownloadCSVComponent from '../material-ui/DownLoadCSV';
 import SketchSearch from './SketchSearch';
@@ -18,18 +19,17 @@ import SketchSearchViewModel from '../../map-lib/widgets/SketchSearchViewModel';
 // ESRI
 import FeatureLayer from '../../map-lib/layers/FeatureLayer';
 import HighlightGraphic from '../../map-lib/support/HighlightGraphic';
-import geometryEngine = require('esri/geometry/geometryEngine')
+import geometryEngine = require('esri/geometry/geometryEngine');
 // APP
 import Item from '../material-ui/LayerFieldItem';
 import ReactTable, { RowInfo } from 'react-table';
 import * as queryHelper from '../../map-lib/support/queryHelper';
 const styles = (theme: Theme) => createStyles({
   root: {
-    position: 'absolute',
-    top: 0,
-    right: 0,
-    width: 360
-
+    width: '100%',
+    display: 'flex',
+    flexDirection: 'column',
+    height: '100%'
   },
   title: {
     fontSize: 30,
@@ -43,18 +43,24 @@ const styles = (theme: Theme) => createStyles({
     padding: '7px 0 17px 0'
   },
   statistic: {
-    padding: 15,
-    width: '100%',
-    maxHeight: 'calc(100vh - 200px)',
-    overflowY: 'auto'
+    flex: '1 1 auto',
+    overflow: 'auto',
+    display: 'flex',
+    flexDirection: 'column',
+    '& .header': {
+
+    },
+    '& .content': {
+      flex: '1 1 auto',
+      overflow: 'auto'
+    }
   },
-  search: { padding: 10 },
+  search: {},
   resultContainer: {
-    padding: 10
+    flex: '1 1 auto',
+    overflow: 'auto'
   },
   resultContainerTable: {
-    minHeight: 395,
-    maxHeight: 'calc(100vh - 245px)',
     overflow: 'auto',
   }
 });
@@ -70,10 +76,10 @@ type States = {
 };
 
 type Props = {
-  view: __esri.MapView
+  view: __esri.MapView | __esri.SceneView
 } & WithStyles<typeof styles>;
 class SearchComponent extends React.Component<Props, States> {
-  private highlightGraphic: HighlightGraphic;
+  private highlightGraphic: HighlightGraphic | undefined;
   private sketchSearch: SketchSearchViewModel;
   constructor(props: Props) {
     super(props);
@@ -91,40 +97,36 @@ class SearchComponent extends React.Component<Props, States> {
     } = this.state;
     const { classes } = this.props;
     return (
-      <div>
-        <div className={classes.root} tabIndex={stepIndex}>
-          <Paper>
-            <Stepper activeStep={stepIndex}>
-              <Step>
-                <StepLabel>Thông tin tìm kiếm</StepLabel>
-              </Step>
-              <Step>
-                <StepLabel>Kết quả tìm kiếm</StepLabel>
-              </Step>
-            </Stepper>
-            <div>{this.getStepContent()}</div>
-            <div className={classes.btnGroup}>
-              <Button
-                disabled={stepIndex === 0}
-                onClick={this.handlePrevious.bind(this)}
-                style={{ marginRight: 12 }}
-                variant="text"
-              >
-                Quay lại
+      <div className={classes.root} tabIndex={stepIndex}>
+        <Stepper activeStep={stepIndex}>
+          <Step>
+            <StepLabel>Thông tin tìm kiếm</StepLabel>
+          </Step>
+          <Step>
+            <StepLabel>Kết quả tìm kiếm</StepLabel>
+          </Step>
+        </Stepper>
+        {this.getStepContent()}
+        <div className={classes.btnGroup}>
+          <Button
+            disabled={stepIndex === 0}
+            onClick={this.handlePrevious.bind(this)}
+            style={{ marginRight: 12 }}
+            variant="text"
+          >
+            Quay lại
               </Button>
-              <Button
-                variant="contained"
-                color="primary"
-                disabled={stepIndex === 1}
-                onClick={this.onSubmitClick.bind(this)}
-              >Tìm kiếm</Button>
-              {/* <Toggle
+          <Button
+            variant="contained"
+            color="primary"
+            disabled={stepIndex === 1}
+            onClick={this.onSubmitClick.bind(this)}
+          >Tìm kiếm</Button>
+          {/* <Toggle
                 label="Hiển thị vị trí"
                 alt="Nếu hiển thị sẽ làm chậm tốc độ tìm kiếm"
                 /> */}
-            </div>
-          </Paper>
-        </div >
+        </div>
       </div>
     );
   }
@@ -158,16 +160,21 @@ class SearchComponent extends React.Component<Props, States> {
     const { selectedLayer, searchFields } = this.state;
 
     if (selectedLayer && searchFields) {
-      return selectedLayer.fields.map(layerField => {
-        return (
-          <Item
-            key={selectedLayer.id + '_' + layerField.name}
-            layerField={layerField}
-            value={searchFields[layerField.name]}
-            onChange={this.onChange.bind(this)}
-          />
-        );
-      });
+      return <Grid container>
+        {
+          selectedLayer.fields.map(layerField => {
+            return (
+              <Grid key={selectedLayer.id + '_' + layerField.name} item xs={12} sm={6}>
+                <Item
+                  layerField={layerField}
+                  value={searchFields[layerField.name]}
+                  onChange={this.onChange.bind(this)}
+                />
+              </Grid>
+            );
+          })
+        }
+      </Grid>;
     } else {
       return null;
     }
@@ -191,7 +198,7 @@ class SearchComponent extends React.Component<Props, States> {
       if (subtype) {
         // lọc fieldName để cập nhật lại giá trị
         for (const fieldName in subtype.domains) {
-          if (fieldName && fieldName != name) {
+          if (fieldName && fieldName !== name) {
             attributes[fieldName] = null;
           }
         }
@@ -200,7 +207,6 @@ class SearchComponent extends React.Component<Props, States> {
 
     this.setState({ searchFields: attributes });
   }
-
 
   /**
    * Giao diện khi chuyển bước
@@ -212,38 +218,42 @@ class SearchComponent extends React.Component<Props, States> {
 
     if (stepIndex === 0) {
       return <div className={classes.statistic}>
-        <FormControl fullWidth >
-          <InputLabel htmlFor="lopdulieu">Chọn lớp dữ liệu</InputLabel>
-          <Select
-            fullWidth={true}
-            value={selectedLayer ? selectedLayer.id : ''}
-            onChange={this.onChangeSelectedFeature.bind(this)}
-            inputProps={{ name: 'lopdulieu', id: 'lopdulieu' }}
-          >
-            <MenuItem value="">
-              <em>None</em>
-            </MenuItem>
-            {
-              lstLayer &&
-              lstLayer.map(m =>
-                <MenuItem key={m.id} value={m.id} >{m.title}</MenuItem>
-              )
-            }
-          </Select>
-        </FormControl>
-        <SketchSearch
-          onDrawPolygonClick={this.sketchSearch.onDrawPolygonClick.bind(this.sketchSearch)}
-          onDrawRectangleClick={this.sketchSearch.onDrawRectangleClick.bind(this.sketchSearch)}
-          onDrawCircleWithCentroidClick={this.sketchSearch.onDrawCircleWithCentroidClick.bind(this.sketchSearch)}
-          onDrawCircleClick={this.sketchSearch.onDrawCircleClick.bind(this.sketchSearch)}
-          onDrawPolylineClick={this.sketchSearch.onDrawPolylineClick.bind(this.sketchSearch)}
-          onClearClick={this.sketchSearch.onClearClick.bind(this.sketchSearch)}
-        />
-        {this.renderForm()}
+        <div className="header">
+          <FormControl fullWidth >
+            <InputLabel htmlFor="lopdulieu">Chọn lớp dữ liệu</InputLabel>
+            <Select
+              fullWidth={true}
+              value={selectedLayer ? selectedLayer.id : ''}
+              onChange={this.onChangeSelectedFeature.bind(this)}
+              inputProps={{ name: 'lopdulieu', id: 'lopdulieu' }}
+            >
+              <MenuItem value="">
+                <em>None</em>
+              </MenuItem>
+              {
+                lstLayer &&
+                lstLayer.map(m =>
+                  <MenuItem key={m.id} value={m.id} >{m.title}</MenuItem>
+                )
+              }
+            </Select>
+          </FormControl>
+          <SketchSearch
+            onDrawPolygonClick={this.sketchSearch.onDrawPolygonClick.bind(this.sketchSearch)}
+            onDrawRectangleClick={this.sketchSearch.onDrawRectangleClick.bind(this.sketchSearch)}
+            onDrawCircleWithCentroidClick={this.sketchSearch.onDrawCircleWithCentroidClick.bind(this.sketchSearch)}
+            onDrawCircleClick={this.sketchSearch.onDrawCircleClick.bind(this.sketchSearch)}
+            onDrawPolylineClick={this.sketchSearch.onDrawPolylineClick.bind(this.sketchSearch)}
+            onClearClick={this.sketchSearch.onClearClick.bind(this.sketchSearch)}
+          />
+        </div>
+        <div className="content">
+          {this.renderForm()}
+        </div>
       </div>;
     } else if (stepIndex === 1) {
       return <Paper className={classes.resultContainer}>
-       {isLoading && <LinearProgress />}
+        {isLoading && <LinearProgress />}
         {error && <div className="error-message">{error}</div>}
         <div className={classes.title}>{selectedLayer ? selectedLayer.title : 'Không xác định'}</div>
         {results &&
@@ -257,9 +267,9 @@ class SearchComponent extends React.Component<Props, States> {
               columns={this.renderComlumnTable()}
               defaultPageSize={10}
               className="-striped -highlight"
-              getTrProps={(state: any, rowInfo: RowInfo) => {
+              getTrProps={(_: any, rowInfo?: RowInfo) => {
                 return {
-                  onClick: () => this.onRowClick(rowInfo)
+                  onClick: () => rowInfo && this.onRowClick(rowInfo)
                 };
               }}
             />
@@ -358,7 +368,7 @@ class SearchComponent extends React.Component<Props, States> {
         if (this.sketchSearch && this.sketchSearch.graphicsSearch
           && this.sketchSearch.graphicsSearch.length > 0) {
           const union = geometryEngine.union(this.sketchSearch.graphicsSearch.toArray());
-          if (union) query.geometry = union;
+          if (union) { query.geometry = union; }
         }
 
         // truy vấn dữ liệu

@@ -7,7 +7,8 @@ import {
   InputLabel,
   WithStyles,
   createStyles,
-  withStyles
+  withStyles,
+  Grid
 } from '@material-ui/core';
 import ReactTable from 'react-table';
 import DownloadComponent from '../material-ui/DownLoadCSV';
@@ -18,23 +19,32 @@ import geometryEngine = require('esri/geometry/geometryEngine');
 // APP
 import Item from '../../components/material-ui/LayerFieldItem';
 import * as moment from 'moment/moment';
+import SplitterLayout from 'react-splitter-layout';
 
 const styles = createStyles({
   root: {
-    padding: 17,
-    display: 'flex',
-    overflowY: 'hidden',
-    height: 510,
-    flexDirection: 'row'
+    height: '100%'
+    // display: 'flex',
+    // overflowY: 'hidden',
+    // flexDirection: 'column'
   },
   formContainer: {
-    overflowY: 'auto',
-    minWidth:300
+    // overflowY: 'auto',
+    // minWidth: 300
   },
   resultsContainer: {
-    flexGrow: 1
+    // flexGrow: 1
   },
   statistic: {
+    display: 'flex',
+    flexDirection: 'column',
+    '& .header': {
+
+    },
+    '& .content': {
+      flex: '1 1 auto',
+      overflow: 'auto'
+    }
   },
   resultContainer: {
 
@@ -55,9 +65,13 @@ type States = {
 };
 
 type Props = {
-  view: __esri.MapView
+  view: __esri.MapView | __esri.SceneView,
+  layers: __esri.FeatureLayer[]
 } & WithStyles<typeof styles>;
 class StatisticComponent extends React.Component<Props, States> {
+  static defaultProps = {
+    layers: [],
+  };
   constructor(props: Props) {
     super(props);
     this.state = {
@@ -71,15 +85,21 @@ class StatisticComponent extends React.Component<Props, States> {
   render() {
     const { classes } = this.props;
     return (
-      <div>
-        <Paper className={classes.root}>
-          <div className={classes.formContainer}>
-            {this.getStepContent(0)}
-          </div>
-          <div className={classes.resultsContainer}>
-            {this.getStepContent(1)}
-          </div>
-        </Paper>
+      <div className={classes.root}>
+        <SplitterLayout
+          vertical
+          primaryIndex={1}
+          primaryMinSize={400}
+          secondaryMinSize={200}
+          secondaryInitialSize={250}
+        >
+          {/* <div className={classes.formContainer}> */}
+          {this.getStepContent(0)}
+          {/* </div> */}
+          {/* <div className={classes.resultsContainer}> */}
+          {this.getStepContent(1)}
+          {/* </div> */}
+        </SplitterLayout>
       </div>
     );
   }
@@ -117,16 +137,21 @@ class StatisticComponent extends React.Component<Props, States> {
     const { selectedLayer, searchFields } = this.state;
 
     if (selectedLayer && searchFields) {
-      return selectedLayer.fields.map(layerField => {
-        return (
-          <Item
-            key={selectedLayer.id + '_' + layerField.name}
-            layerField={layerField}
-            value={searchFields[layerField.name]}
-            onChange={this.onChange.bind(this)}
-          />
-        );
-      });
+      return <Grid container>
+        {
+          selectedLayer.fields.map(layerField => {
+            return (
+              <Grid key={selectedLayer.id + '_' + layerField.name} item xs={12} sm={6}>
+                <Item
+                  layerField={layerField}
+                  value={searchFields[layerField.name]}
+                  onChange={this.onChange.bind(this)}
+                />
+              </Grid>
+            );
+          })
+        }
+      </Grid>;
     } else {
       return null;
     }
@@ -150,7 +175,7 @@ class StatisticComponent extends React.Component<Props, States> {
       if (subtype) {
         // lọc fieldName để cập nhật lại giá trị
         for (const fieldName in subtype.domains) {
-          if (fieldName && fieldName != name) {
+          if (fieldName && fieldName !== name) {
             attributes[fieldName] = null;
           }
         }
@@ -170,26 +195,30 @@ class StatisticComponent extends React.Component<Props, States> {
 
     if (stepIndex === 0) {
       return <div className={classes.statistic}>
-        <FormControl fullWidth>
-          <InputLabel htmlFor="lopdulieu">Chọn lớp dữ liệu</InputLabel>
-          <Select
-            fullWidth={true}
-            value={selectedLayer ? selectedLayer.id : ''}
-            onChange={this.onChangeSelectedFeature.bind(this)}
-            inputProps={{ name: 'lopdulieu', id: 'lopdulieu' }}
-          >
-            <MenuItem value="">
-              <em>None</em>
-            </MenuItem>
-            {
-              lstLayer &&
-              lstLayer.map(m =>
-                <MenuItem key={m.id} value={m.id} >{m.title}</MenuItem>
-              )
-            }
-          </Select>
-        </FormControl>
-        {this.renderForm()}
+        <div className="header">
+          <FormControl fullWidth>
+            <InputLabel htmlFor="lopdulieu">Chọn lớp dữ liệu</InputLabel>
+            <Select
+              fullWidth={true}
+              value={selectedLayer ? selectedLayer.id : ''}
+              onChange={this.onChangeSelectedFeature.bind(this)}
+              inputProps={{ name: 'lopdulieu', id: 'lopdulieu' }}
+            >
+              <MenuItem value="">
+                <em>None</em>
+              </MenuItem>
+              {
+                lstLayer &&
+                lstLayer.map(m =>
+                  <MenuItem key={m.id} value={m.id} >{m.title}</MenuItem>
+                )
+              }
+            </Select>
+          </FormControl>
+        </div>
+        <div className="content">
+          {this.renderForm()}
+        </div>
       </div>;
     } else if (stepIndex === 1) {
       return <Paper className={classes.resultContainer}>
@@ -337,8 +366,8 @@ class StatisticComponent extends React.Component<Props, States> {
               STT: this.state.results ? this.state.results.length + 1 : 1,
               TieuChi: tieuChi.join(', '),
               ChieuDaiGIS: length + ' m',
-              ChieuDaiTT: features.length>0?
-              features.map(m => m.attributes.CHIEUDAI || 0).reduce((a, b) => a + b):0,
+              ChieuDaiTT: features.length > 0 ?
+                features.map(m => m.attributes.CHIEUDAI || 0).reduce((a, b) => a + b) : 0,
               SoLuong: features.length
             });
             this.setState({

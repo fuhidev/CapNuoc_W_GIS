@@ -146,7 +146,7 @@ export default class LayerHelper {
 							width: 20, height: 20,
 							url: `${baseUrl}/${value}.png`
 						})
-					} as __esri.UniqueValueRendererUniqueValueInfos
+					} as __esri.UniqueValueRendererUniqueValueInfos;
 				});
 		}
 

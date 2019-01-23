@@ -24,7 +24,7 @@ const Item = (props: {
           <InputLabel htmlFor={layerField.name}>{layerField.alias || layerField.name}</InputLabel>
           <Select
             name={layerField.name}
-            value={value != undefined ? value : ''}
+            value={value !== undefined && value !== null ? value : ''}
             fullWidth={true}
             onChange={(event: React.ChangeEvent<HTMLSelectElement>) => {
               let _value = event.target.value;
@@ -83,7 +83,14 @@ const Item = (props: {
             }}
           /></div>;
       default:
-        return <div></div>;
+        return <TextField
+          label={layerField.alias || layerField.name}
+          value={value !== null && value !== undefined ? value : ''}
+          fullWidth={true}
+          onChange={(e: any) => {
+              onChange(layerField.name, e.target.value);
+          }}
+        />;
     }
   }
 

@@ -60,8 +60,7 @@ class QuanLyMangLuoiComponent extends React.Component<Props, States> {
   }
 
   componentDidMount() {
-    if (this.mapDiv)
-      this.props.loadMapDiv(this.mapDiv);
+    if (this.mapDiv) { this.props.loadMapDiv(this.mapDiv); }
   }
 
   private initWidget(view: __esri.MapView | __esri.SceneView, layerInfos: LayerInfo[]) {
@@ -118,42 +117,41 @@ class QuanLyMangLuoiComponent extends React.Component<Props, States> {
           }).toArray()
       });
 
-      // Tìm kiếm
-      {
-        let element = document.createElement('div');
-        ReactDOM.render(
-          <SearchComponent
-            view={view as any}
-          />, element);
+      // // Tìm kiếm
+      // {
+      //   let element = document.createElement('div');
+      //   ReactDOM.render(
+      //     <SearchComponent
+      //       view={view as any}
+      //     />, element);
 
-        let searchExpand = new Expand({
-          content: element,
-          expandIconClass: 'esri-icon-search',
-          expandTooltip: 'Tìm kiếm',
-          collapseTooltip: 'Đóng'
-        });
+      //   let searchExpand = new Expand({
+      //     content: element,
+      //     expandIconClass: 'esri-icon-search',
+      //     expandTooltip: 'Tìm kiếm',
+      //     collapseTooltip: 'Đóng'
+      //   });
 
-        view.ui.add(searchExpand, 'top-right');
-      }
+      //   view.ui.add(searchExpand, 'top-right');
+      // }
 
+      // // Thống kê
+      // {
+      //   let element = document.createElement('div');
+      //   ReactDOM.render(
+      //     <StatisticComponent
+      //       view={view as any}
+      //     />, element);
 
-      // Thống kê
-      {
-        let element = document.createElement('div');
-        ReactDOM.render(
-          <StatisticComponent
-            view={view as any}
-          />, element);
+      //   let statisticExpand = new Expand({
+      //     content: element,
+      //     expandIconClass: 'esri-icon-chart',
+      //     expandTooltip: 'Thống kê',
+      //     collapseTooltip: 'Đóng'
+      //   });
 
-        let statisticExpand = new Expand({
-          content: element,
-          expandIconClass: 'esri-icon-chart',
-          expandTooltip: 'Thống kê',
-          collapseTooltip: 'Đóng'
-        });
-
-        view.ui.add(statisticExpand, 'top-right');
-      }
+      //   view.ui.add(statisticExpand, 'top-right');
+      // }
 
       view.ui.add(new Expand({
         content: new Print({
@@ -166,7 +164,7 @@ class QuanLyMangLuoiComponent extends React.Component<Props, States> {
         collapseTooltip: 'Đóng'
       }), 'top-right');
 
-      let basemapToggle = new BasemapToggle({ view, nextBasemap: 'osm' })
+      let basemapToggle = new BasemapToggle({ view, nextBasemap: 'osm' });
       view.ui.add(basemapToggle, 'bottom-left');
       basemapToggle.toggle();
 
@@ -186,12 +184,13 @@ class QuanLyMangLuoiComponent extends React.Component<Props, States> {
   }
 
   private registerEvent(view: __esri.MapView | __esri.SceneView) {
+    return null;
   }
 
   render() {
     return (
       <div className="mapDiv">
-        <div 
+        <div
           ref={
             (element: HTMLDivElement) => this.mapDiv = element
           }

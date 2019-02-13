@@ -1,6 +1,6 @@
 // React
 import * as React from 'react';
-import { PieChart, Legend, Tooltip, Pie, Cell } from 'recharts';
+import { PieChart, Legend, Tooltip, Pie, Cell, ResponsiveContainer } from 'recharts';
 import BaseComponent, { BaseProps } from '../../BaseComponent';
 // Redux
 import { connect } from 'react-redux';
@@ -11,6 +11,14 @@ import { timKiemTheoTrangThai } from '../../../services/map/action';
 import { ThongKe, COLORS } from '../../../services/map/SuCo/model';
 import { LAYER as CST_LAYER } from '../../../constants/map';
 import FeatureLayer from '../../../map-lib/layers/FeatureLayer';
+import { createStyles, WithStyles, withStyles } from '@material-ui/core';
+
+const styles = createStyles({
+  root: {
+    width: '100%',
+    height: 400
+  }
+});
 
 type StateToProps = {
   datas: ThongKe[],
@@ -24,7 +32,7 @@ type DispatchToProps = {
 };
 
 type Props = {
-} & StateToProps & DispatchToProps & BaseProps;
+} & StateToProps & DispatchToProps & BaseProps & WithStyles<typeof styles>;
 
 class ChartComponent extends BaseComponent<Props, {}> {
 
@@ -41,23 +49,25 @@ class ChartComponent extends BaseComponent<Props, {}> {
   }
 
   render() {
-    const { datas, className } = this.props;
-    return <div>
-      <PieChart className={className} width={300} height={400}>
-        <Legend verticalAlign="bottom" height={36} align="center" />
-        <Tooltip />
-        <Pie
-          onClick={this.handleChartClick.bind(this)}
-          dataKey="value"
-          // nameKey="name"
-          // valueKey="value"
-          data={datas}
-          outerRadius={80}
-          label >
-          <Cell fill={COLORS[0]} />
-          <Cell fill={COLORS[1]} />
-        </Pie>
-      </PieChart>
+    const { datas, classes } = this.props;
+    return <div className={classes.root}>
+      <ResponsiveContainer>
+        <PieChart >
+          <Legend verticalAlign="bottom" height={36} align="center" />
+          <Tooltip />
+          <Pie
+            onClick={this.handleChartClick.bind(this)}
+            dataKey="value"
+            // nameKey="name"
+            // valueKey="value"
+            data={datas}
+            outerRadius={80}
+            label >
+            <Cell fill={COLORS[0]} />
+            <Cell fill={COLORS[1]} />
+          </Pie>
+        </PieChart>
+      </ResponsiveContainer>
     </div>;
   }
 }
@@ -76,4 +86,4 @@ const mapDispatchToProps = (dispatch: Function): DispatchToProps => ({
   errorAlert: (message: string) => dispatch(alertActions.error(message))
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(ChartComponent);
+export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(ChartComponent));

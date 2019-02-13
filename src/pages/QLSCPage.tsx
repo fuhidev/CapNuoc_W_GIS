@@ -21,6 +21,7 @@ import { alertActions } from '../services/main/action';
 import { emptyInfos, setLayer } from '../services/map/action';
 import { createStyles, WithStyles, withStyles } from '@material-ui/core';
 import FeatureLayer from '../map-lib/layers/FeatureLayer';
+import SplitterLayout from 'react-splitter-layout';
 
 const styles = createStyles({
   root: {
@@ -30,20 +31,17 @@ const styles = createStyles({
     height: '100%'
   },
   toolContainer: {
-    width: '30%',
+    width: '100%',
     height: '100%'
   },
   mapContainer: {
     flexGrow: 1,
     height: '100%',
-    display: 'flex',
-    flexDirection: 'column',
     '& .map-view-container': {
       flexGrow: 1,
       height: 'fit-content'
     },
     '& .info-container': {
-      height: 200
     }
   }
 });
@@ -88,23 +86,31 @@ class QLSCPage extends BasePage<Props, States> {
     const { isShowInfoTable, classes } = this.props;
     return (
       <div className={classes.root}>
-        <div className={classes.toolContainer}>
-          <ToolComponent />
-        </div>
-        <div className={classes.mapContainer}>
-          <MapComponent
-            className="map-view-container"
-            loadMapDiv={this.loadMapDiv.bind(this)}
-            layerInfos={this.props.layerInfos}
-            view={this.props.view}
-          />
-          {
-            isShowInfoTable
-            && <div className="info-container">
-              <InfoTableComponent />
-            </div>
-          }
-        </div>
+        <SplitterLayout primaryIndex={1} secondaryInitialSize={400}>
+          <div className={classes.toolContainer}>
+            <ToolComponent />
+          </div>
+          <div className={classes.mapContainer}>
+            <SplitterLayout
+              primaryIndex={0}
+              secondaryInitialSize={200}
+              vertical
+            >
+              <MapComponent
+                className="map-view-container"
+                loadMapDiv={this.loadMapDiv.bind(this)}
+                layerInfos={this.props.layerInfos}
+                view={this.props.view}
+              />
+              {
+                isShowInfoTable
+                && <div className="info-container">
+                  <InfoTableComponent />
+                </div>
+              }
+            </SplitterLayout>
+          </div>
+        </SplitterLayout>
       </div>
     );
   }

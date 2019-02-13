@@ -2,20 +2,18 @@
 import * as React from 'react';
 import BasePage from './BasePage';
 
-//Redux
-import { getLayerInfos, initViewDiv } from '../actions/index'
+// Redux
+import { getLayerInfos, initViewDiv } from '../actions/index';
 
 // APP
 import MapComponent from '../components/QuanLySuCo/MapComponent';
 import InfoTableComponent from '../components/QuanLySuCo/InfoTableComponent';
 import ToolComponent from '../components/QuanLySuCo/ToolComponent';
-import ChiTietComponent from '../components/QuanLySuCo/ChiTiet/index';
 import LayerInfo from '../models/LayerInfo';
 import {
   LAYER as CST_LAYER
 } from '../constants/map';
 import layerUtils from '../map-lib/support/LayerHelper';
-import { Model } from '../services/map/SuCo/model';
 // ESRI
 import { connect } from 'react-redux';
 import { AllModelReducer } from '../reducers';
@@ -27,15 +25,17 @@ import FeatureLayer from '../map-lib/layers/FeatureLayer';
 const styles = createStyles({
   root: {
     display: 'flex',
-    flexDirection: 'row'
+    flexDirection: 'row',
+    width: '100%',
+    height: '100%'
   },
   toolContainer: {
     width: '30%',
-    height: '100vh'
+    height: '100%'
   },
   mapContainer: {
     flexGrow: 1,
-    height: '100vh',
+    height: '100%',
     display: 'flex',
     flexDirection: 'column',
     '& .map-view-container': {
@@ -55,7 +55,7 @@ type StateToProps = {
   layerInfos?: LayerInfo[],
   view?: __esri.MapView | __esri.SceneView,
   isShowInfoTable: boolean
-}
+};
 
 type DispatchToProps = {
   getLayerInfos: () => void,
@@ -105,7 +105,6 @@ class QLSCPage extends BasePage<Props, States> {
             </div>
           }
         </div>
-        <ChiTietComponent />
       </div>
     );
   }
@@ -143,5 +142,7 @@ const mapStateToProps = (state: AllModelReducer): StateToProps => ({
   isShowInfoTable: state.mapSuCo.infoDatas !== undefined,
 });
 
-export default connect(mapStateToProps, { getLayerInfos, initViewDiv, alertError: alertActions.error, closeInfoWindow: emptyInfos, setLayer })
+export default connect(
+  mapStateToProps,
+  { getLayerInfos, initViewDiv, alertError: alertActions.error, closeInfoWindow: emptyInfos, setLayer })
   (withStyles(styles)(QLSCPage));

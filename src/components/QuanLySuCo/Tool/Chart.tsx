@@ -1,17 +1,16 @@
-//React
-import * as React from 'react'
+// React
+import * as React from 'react';
 import { PieChart, Legend, Tooltip, Pie, Cell } from 'recharts';
 import BaseComponent, { BaseProps } from '../../BaseComponent';
-//Redux
+// Redux
 import { connect } from 'react-redux';
 import { AllModelReducer } from '../../../reducers';
 import { loading, alertActions } from '../../../services/main/action';
-import { timKiemTheoTinhTrang } from '../../../services/map/action';
+import { timKiemTheoTrangThai } from '../../../services/map/action';
 
 import { ThongKe, COLORS } from '../../../services/map/SuCo/model';
-import { LAYER as CST_LAYER } from '../../../constants/map'
+import { LAYER as CST_LAYER } from '../../../constants/map';
 import FeatureLayer from '../../../map-lib/layers/FeatureLayer';
-
 
 type StateToProps = {
   datas: ThongKe[],
@@ -27,7 +26,6 @@ type DispatchToProps = {
 type Props = {
 } & StateToProps & DispatchToProps & BaseProps;
 
-
 class ChartComponent extends BaseComponent<Props, {}> {
 
   private async handleChartClick(event: any) {
@@ -38,9 +36,6 @@ class ChartComponent extends BaseComponent<Props, {}> {
       const layer = this.props.view.map.findLayerById(CST_LAYER.DIEM_SU_CO) as FeatureLayer;
       if (layer) {
         this.props.queryInfos(code);
-      }
-      else {
-
       }
     }
   }
@@ -73,10 +68,10 @@ const mapStateToProps = (state: AllModelReducer): StateToProps => ({
 });
 
 const mapDispatchToProps = (dispatch: Function): DispatchToProps => ({
-  queryInfos: (code: string) => dispatch(timKiemTheoTinhTrang(code)),
+  queryInfos: (code: string) => dispatch(timKiemTheoTrangThai(code)),
   loading: (isShow: boolean) => {
-    if (isShow) return dispatch(loading.loadingReady);
-    else return dispatch(loading.loadingFinish);
+    if (isShow) { return dispatch(loading.loadingReady); }
+    else { return dispatch(loading.loadingFinish); }
   },
   errorAlert: (message: string) => dispatch(alertActions.error(message))
 });

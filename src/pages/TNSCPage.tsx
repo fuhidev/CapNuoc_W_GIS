@@ -45,7 +45,7 @@ const styles = createStyles({
 });
 
 type States = {
-  maSuCo: string
+  IDSuCo: string
 };
 
 type StateToProps = {
@@ -69,7 +69,7 @@ class TNSCPage extends BasePage<Props, States> {
   constructor(props: any) {
     super(props);
     this.state = {
-      maSuCo: ''
+      IDSuCo: ''
     };
   }
 
@@ -80,7 +80,7 @@ class TNSCPage extends BasePage<Props, States> {
 
     // cập nhật mã sự cố khi thay đổi newIDSuCo
     if (props.newIDSuCo && props.newIDSuCo !== this.props.newIDSuCo) {
-      this.setState({ maSuCo: props.newIDSuCo });
+      this.setState({ IDSuCo: props.newIDSuCo });
     }
   }
 

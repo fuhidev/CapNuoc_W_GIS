@@ -7,7 +7,7 @@ import DatePicker, { TimeType } from '../../../material-ui/DatePicker';
 
 const SearchingForm = (props: {
   onChange: (name: string, value: any) => void,
-  maSuCo?: string,
+  IDSuCo?: string,
   sdtNguoiPhanAnh?: string,
   tgPhanAnhFrom?: Date,
   tgPhanAnhTo?: Date,
@@ -17,11 +17,11 @@ const SearchingForm = (props: {
   return <div>
     <FlexComponent>
       <TextField
-        name="maSuCo"
-        value={props.maSuCo || ''}
+        name="IDSuCo"
+        value={props.IDSuCo || ''}
         label="Mã sự cố"
         fullWidth={true}
-        onChange={(e: React.ChangeEvent<HTMLInputElement>) => props.onChange('maSuCo', e.target.value)}
+        onChange={(e: React.ChangeEvent<HTMLInputElement>) => props.onChange('IDSuCo', e.target.value)}
       />
       <TextField
         name="sdtNguoiPhanAnh"
@@ -52,12 +52,15 @@ const SearchingForm = (props: {
       />
     </GroupComponent>
     <FormControl fullWidth >
-      <InputLabel htmlFor="linhvuc-suco">Lĩnh vực</InputLabel>
+      <InputLabel htmlFor="thongtinphananh">Thông tin phản ánh</InputLabel>
       <Select
-        name="linhvuc-suco"
+        name="thongtinphananh"
         fullWidth={true}
         value={props.thongTinPhanAnh !== undefined ? props.thongTinPhanAnh : ''}
-        onChange={(event: React.ChangeEvent<HTMLSelectElement>) => props.onChange('linhVuc', event.target.value)}
+        onChange={
+          (event: React.ChangeEvent<HTMLSelectElement>) =>
+            props.onChange('thongTinPhanAnh', event.target.value)
+        }
       >
         <MenuItem value="">
           <em>None</em>

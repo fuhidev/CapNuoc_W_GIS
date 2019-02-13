@@ -26,7 +26,7 @@ const styles = (theme: Theme) => createStyles({
 });
 
 type State = {
-  maSuCo?: string,
+  IDSuCo?: string,
   sdtNguoiPhanAnh?: string,
   tgPhanAnhFrom?: Date,
   tgPhanAnhTo?: Date,
@@ -61,16 +61,22 @@ class SearchingComponent extends BaseComponent<Props, State>{
       this.loadDMThongTinPhanAnh();
     }
   }
+
+  componentDidMount() {
+    if (this.props.layerSuCo) {
+      this.loadDMThongTinPhanAnh();
+    }
+  }
   render() {
     if (!this.props.layerSuCo) { return <LinearProgress />; }
     const { classes } = this.props;
-    const { maSuCo, sdtNguoiPhanAnh, tgPhanAnhFrom, tgPhanAnhTo,
+    const { IDSuCo, sdtNguoiPhanAnh, tgPhanAnhFrom, tgPhanAnhTo,
       thongTinPhanAnh, thongTinPhanAnhValues } = this.state;
 
     return <div className={classes.root}>
       <Typography variant="h6">Nhập nội dung tìm kiếm</Typography>
       <SearchingForm
-        maSuCo={maSuCo}
+        IDSuCo={IDSuCo}
         sdtNguoiPhanAnh={sdtNguoiPhanAnh}
         tgPhanAnhFrom={tgPhanAnhFrom}
         tgPhanAnhTo={tgPhanAnhTo}
@@ -106,10 +112,10 @@ class SearchingComponent extends BaseComponent<Props, State>{
 
   private onSearch() {
     let whereArray = [];
-    const { maSuCo, sdtNguoiPhanAnh, tgPhanAnhFrom, tgPhanAnhTo,
+    const { IDSuCo, sdtNguoiPhanAnh, tgPhanAnhFrom, tgPhanAnhTo,
       thongTinPhanAnh } = this.state;
-    if (maSuCo) {
-      whereArray.push(`${ModelConstant.IDSuCo} like '%${maSuCo}%'`);
+    if (IDSuCo) {
+      whereArray.push(`${ModelConstant.IDSuCo} like '%${IDSuCo}%'`);
     }
     if (sdtNguoiPhanAnh) {
       whereArray.push(`${ModelConstant.SDTPhanAnh} like '%${sdtNguoiPhanAnh}%'`);
@@ -128,7 +134,7 @@ class SearchingComponent extends BaseComponent<Props, State>{
 
   private onClear() {
     this.setState({
-      maSuCo: undefined,
+      IDSuCo: undefined,
       sdtNguoiPhanAnh: undefined,
       tgPhanAnhFrom: undefined,
       tgPhanAnhTo: undefined,

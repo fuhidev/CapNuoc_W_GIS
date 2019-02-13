@@ -30,8 +30,7 @@ const styles = (theme: Theme) => createStyles({
 
 enum TabIndex {
   List, Chart, Search
-};
-
+}
 
 type StateToProps = {
   lengthMTN: number // số lượng sự cố mới tiếp nhận
@@ -86,12 +85,12 @@ class ToolComponent extends BaseComponent<Props, State> {
         </div>
       }
 
-    </div>
+    </div>;
   }
 }
 
 const mapStateToProps = (state: AllModelReducer): StateToProps => ({
-  lengthMTN: state.mapSuCo.items.filter(f => f.TinhTrang == TrangThai.MoiTiepNhan).length
+  lengthMTN: state.mapSuCo.items.filter(f => f.TrangThai === TrangThai.MoiTiepNhan).length
 });
 
 export default connect(mapStateToProps, null)(withStyles(styles)(ToolComponent));

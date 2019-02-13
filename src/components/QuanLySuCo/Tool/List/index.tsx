@@ -8,22 +8,22 @@ const styles = createStyles({
   root: {
 
   },
-  item:{
-    cursor:'pointer'
+  item: {
+    cursor: 'pointer'
   }
 });
 
 type StateToProps = {
   datas: Model[],
-  view?:__esri.MapView | __esri.SceneView,
-  layer?:__esri.FeatureLayer // layer sự cố
+  view?: __esri.MapView | __esri.SceneView,
+  layer?: __esri.FeatureLayer // layer sự cố
 };
 
 type Props = {
 
 }
   & StateToProps
-  & WithStyles<typeof styles>
+  & WithStyles<typeof styles>;
 
 class ListComponent extends React.Component<Props, {}>{
   render() {
@@ -31,12 +31,20 @@ class ListComponent extends React.Component<Props, {}>{
     return <div className={classes.root}>
       <List>
         {
-          datas.map(m =>
-            <Tooltip  key={m.MaSuCo} title={m.MaSuCo} className={classes.item} onClick={()=>this.onClick(m)}>
+          datas.map((m, index) =>
+            <Tooltip
+              key={(m.IDSuCo || '') + index}
+              title={m.IDSuCo || ''}
+              className={classes.item}
+              onClick={() => this.onClick(m)}
+            >
               <ListItem>
-                <Avatar src={this.getSrcAvatar(m.TinhTrang, m.LinhVuc)}>
+                <Avatar src={this.getSrcAvatar(m.TrangThai || 0)}>
                 </Avatar>
-                <ListItemText primary={`${m.TGPhanAnh?moment(new Date(m.TGPhanAnh)).fromNow():'...'}`} secondary={m.DiaChi} />
+                <ListItemText
+                  primary={`${m.TGPhanAnh ? moment(new Date(m.TGPhanAnh)).fromNow() : '...'}`}
+                  secondary={m.DiaChi}
+                />
               </ListItem>
             </Tooltip>
           )
@@ -45,7 +53,7 @@ class ListComponent extends React.Component<Props, {}>{
     </div>;
   }
 
-  private async onClick(model:Model){
+  private async onClick(model: Model) {
     const { OBJECTID } = model;
     const { view, layer } = this.props;
     if (view && layer) {
@@ -64,16 +72,16 @@ class ListComponent extends React.Component<Props, {}>{
     }
   }
 
-  private getSrcAvatar(tinhTrang: string, linhVuc: number = -1): string {
+  private getSrcAvatar(trangThai: number): string {
     const baseUrl = `/images/map/suco/`;
-    return baseUrl + `${linhVuc}-${tinhTrang}.png`;
+    return baseUrl + `${trangThai}.png`;
   }
-};
+}
 
 const mapStateToProps = (state: AllModelReducer): StateToProps => ({
-  datas: state.mapSuCo.items.filter(f => f.TinhTrang == TrangThai.MoiTiepNhan),
-  view:state.map.view,
-  layer:state.mapSuCo.layer
+  datas: state.mapSuCo.items.filter(f => f.TrangThai === TrangThai.MoiTiepNhan),
+  view: state.map.view,
+  layer: state.mapSuCo.layer
 });
 
 export default connect(mapStateToProps, null)(withStyles(styles)(ListComponent));

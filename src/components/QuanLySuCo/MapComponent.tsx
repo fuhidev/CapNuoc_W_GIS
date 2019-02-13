@@ -16,12 +16,10 @@ import LayerInfo from '../../models/LayerInfo';
 import layerUtil from '../../map-lib/support/LayerHelper';
 import { Model } from '../../services/map/SuCo/model';
 
-//REDUX
+// REDUX
 import { connect } from 'react-redux';
-import { getThongTinChiTiet } from '../../services/map/action';
 
 type DispatchToProps = {
-  getThongTinChiTiet: (data: Model) => void
 };
 
 type Props = {
@@ -65,8 +63,9 @@ class MapComponent extends BaseComponent<Props, States> {
   }
 
   componentDidMount() {
-    if (this.mapDiv)
+    if (this.mapDiv) {
       this.props.loadMapDiv(this.mapDiv);
+    }
   }
 
   private initWidget(view: __esri.MapView | __esri.SceneView, layerInfos: LayerInfo[]) {
@@ -102,12 +101,11 @@ class MapComponent extends BaseComponent<Props, States> {
               isEditable = false;
             let actions: Action[] = [];
 
-
             if (layer.id === CST_LAYER.DIEM_SU_CO) {
               actions.push(new Action({
-                id: 'xemchitiet',
-                title: 'Xem chi tiết',
-                className: 'esri-icon-duplicate'
+                id: 'phieu-cong-tac',
+                title: 'Phiếu công tác',
+                className: 'esri-icon-documentation',
               }));
             }
 
@@ -126,7 +124,7 @@ class MapComponent extends BaseComponent<Props, States> {
           }).toArray()
       });
 
-      let basemapToggle = new BasemapToggle({ view, nextBasemap: 'osm' })
+      let basemapToggle = new BasemapToggle({ view, nextBasemap: 'osm' });
       view.ui.add(basemapToggle, 'bottom-left');
       // view.when(()=>basemapToggle.toggle());
 
@@ -149,16 +147,13 @@ class MapComponent extends BaseComponent<Props, States> {
         });
         const action = event.action,
           id = action.id;
-
-        if (id === 'xemchitiet') {
-          const selectedFeature = view.popup.selectedFeature;
-          if (selectedFeature) {
-            const attributes = selectedFeature.attributes as Model;
-            this.props.getThongTinChiTiet(attributes);
-
-          }
+        if (id === 'phieu-cong-tac') {
+          var a = document.createElement('a');
+          a.rel = 'noopener noreferrer';
+          a.target = '_blank';
+          // a.href = api.inPhieuCongTac(view.popup.selectedFeature.attributes.IDSuCo);
+          a.click();
         }
-      } catch (error) {
       }
       finally {
         this.setState({
@@ -169,9 +164,8 @@ class MapComponent extends BaseComponent<Props, States> {
   }
 
   render() {
-    const { className } = this.props;
     return (
-      <div className={className}
+      <div className="mapDiv"
         ref={
           (element: HTMLDivElement) => this.mapDiv = element
         }
@@ -181,4 +175,4 @@ class MapComponent extends BaseComponent<Props, States> {
   }
 }
 
-export default connect(null, { getThongTinChiTiet })(MapComponent);
+export default connect(null, null)(MapComponent);

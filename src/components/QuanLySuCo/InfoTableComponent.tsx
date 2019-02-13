@@ -1,10 +1,10 @@
-//React
+// React
 import * as React from 'react';
 import {
   Paper, IconButton, Tooltip, Table, TableHead, TableRow, TableCell, TableBody,
   WithStyles, withStyles, createStyles, Theme
 } from '@material-ui/core';
-//Redux
+// Redux
 import { connect } from 'react-redux';
 import { AllModelReducer } from '../../reducers';
 import { emptyInfos } from '../../services/map/SuCo/action';
@@ -14,7 +14,7 @@ import FeatureLayer from '../../map-lib/layers/FeatureLayer';
 
 import * as moment from 'moment/moment';
 
-const DISPLAY_FIELDS = ['MaSuCo', 'DiaChi', 'TGPhanAnh']
+const DISPLAY_FIELDS = ['IDSuCo', 'DiaChi', 'TGPhanAnh'];
 
 const styles = (theme: Theme) => createStyles({
   root: {
@@ -42,7 +42,7 @@ type Props = {
 } & StateToProps & DispatchToProps & WithStyles<typeof styles>;
 
 type State = {
-}
+};
 
 class InfoTableComponent extends React.Component<Props, State> {
   constructor(props: Props) {
@@ -74,10 +74,11 @@ class InfoTableComponent extends React.Component<Props, State> {
 
   private renderComlumnTable() {
     const { layerSuCo } = this.props;
-    if (layerSuCo)
+    if (layerSuCo) {
       return layerSuCo.fields
         .filter(f => DISPLAY_FIELDS.indexOf(f.name) !== -1 && f.type !== 'oid')
         .map(m => ({ Alias: m.alias, Name: m.name }));
+    }
     return [];
   }
 
@@ -85,7 +86,6 @@ class InfoTableComponent extends React.Component<Props, State> {
     const { datas, classes } = this.props;
 
     const columns = this.renderComlumnTable();
-
 
     return <div className={classes.root}>
       <Paper style={{
@@ -114,15 +114,19 @@ class InfoTableComponent extends React.Component<Props, State> {
           <TableBody>
             {this.convertDatas(datas).map(row => {
               return (
-                <TableRow key={row.MaSuCo} className={classes.tableRow} onClick={() => this.onRowClick(row)}>
+                <TableRow key={row.IDSuCo} className={classes.tableRow} onClick={() => this.onRowClick(row)}>
                   {
                     columns.map((m, index) => {
-                      if (index === 0) return <TableCell key={row.MaSuCo + '_' + m.Name} component="th" scope="row">{row[m.Name]}</TableCell>
-                      return <TableCell key={row.MaSuCo + '_' + m.Name} >
+                      if (index === 0) {
+                        return <TableCell key={row.IDSuCo + '_' + m.Name} component="th" scope="row">
+                        {row[m.Name]}
+                        </TableCell>;
+                      }
+                      return <TableCell key={row.IDSuCo + '_' + m.Name} >
                         {/* <Tooltip title={row[m.Name] || 'Không có giá trị'}> */}
                         {row[m.Name]}
                         {/* </Tooltip> */}
-                      </TableCell>
+                      </TableCell>;
                     })
                   }
                 </TableRow>
@@ -144,7 +148,7 @@ class InfoTableComponent extends React.Component<Props, State> {
           }}
         /> */}
       </Paper>
-    </div>
+    </div>;
   }
 
   private convertDatas(datas: Model[]): Model[] {
@@ -159,8 +163,8 @@ class InfoTableComponent extends React.Component<Props, State> {
           if (baseValue && Number.isInteger(baseValue)) {
             f[field.name] = moment(new Date(baseValue)).fromNow();
           }
-        })
-      })
+        });
+      });
       return dataReturn;
     }
     return [];

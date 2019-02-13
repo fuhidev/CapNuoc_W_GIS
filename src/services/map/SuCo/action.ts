@@ -3,9 +3,9 @@ import { MapSuCoAction } from './EAction';
 import { MapSuCoActionType } from './action-types';
 import { loading, alertActions } from '../../main/action';
 import MSG from '../../../constants/MSG';
-import { layMaSuCo } from '../../api/SuCoApi';
+import { layIDSuCo } from '../../api/SuCoApi';
 import Auth from '../../../modules/Auth';
-import { SEARCH_OUTFIELDS, TrangThai, Model } from './model';
+import { SEARCH_OUTFIELDS, TrangThai, Model, ModelConstant } from './model';
 // Esri
 import FeatureLayer from '../../../map-lib/layers/FeatureLayer';
 import { AllModelReducer } from '../../../reducers';
@@ -17,12 +17,12 @@ export const setInfos = (datas: any[]): MapSuCoAction => (
  * 
  * @param layer Sự cố layer
  */
-export const timKiemTheoTinhTrang = (code: string) => {
+export const timKiemTheoTrangThai = (code: string) => {
   return (dispatch: Dispatch<any>, getState: () => AllModelReducer) => {
     const layer = getLayer(getState());
     if (layer) {
       dispatch(loading.loadingReady());
-      let where = `TinhTrang = '${code}'`;
+      let where = `${ModelConstant.TrangThai} = ${code}`;
 
       if (layer.layerInfo.Definition) {
         where = `${layer.layerInfo.Definition} and (${where})`;
@@ -88,11 +88,11 @@ export const phanAnhSuCo = (info: Model, geometry: __esri.Point
       try {
         dispatch(loading.loadingReady());
         const user = Auth.getUser(); // Lây user
-        const id = await layMaSuCo();
+        const id = await layIDSuCo();
 
         // tạo attributes
         const attributes = {
-          MaSuCo: id,
+          IDSuCo: id,
           TGPhanAnh: new Date().getTime() as any,
           TrangThai: TrangThai.MoiTiepNhan,
           SDTPhanAnh: info.SDTPhanAnh,

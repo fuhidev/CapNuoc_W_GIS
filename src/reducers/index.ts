@@ -6,7 +6,7 @@ import mapReducer, {
 import mapSuCoReducer, {
   Model as MapSuCoModel, defaultState as mapSuCoState,
 } from '../services/map/SuCo/reducer';
-import { connectRouter } from 'connected-react-router'
+import { connectRouter } from 'connected-react-router';
 import { History } from 'history';
 
 export type AllModelReducer = {
@@ -14,10 +14,6 @@ export type AllModelReducer = {
   map: MapModel,
   mapSuCo: MapSuCoModel
 };
-
-
-
-
 
 export const initialState: AllModelReducer = {
   main: mainState,

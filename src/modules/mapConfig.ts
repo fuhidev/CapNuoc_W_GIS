@@ -1,7 +1,12 @@
 import esriConfig = require('esri/config');
+import { PROXY_URL } from '../appconfig';
 
 const DEFAULT_WORKER_URL = 'https://js.arcgis.com/4.9/';
 const DEFAULT_LOADER_URL = `${DEFAULT_WORKER_URL}dojo/dojo-lite.js`;
+
+if (process.env.NODE_ENV === 'production') {
+  esriConfig.request.proxyUrl = PROXY_URL + '/proxy.ashx';
+}
 
 (esriConfig.workers as any).loaderUrl = DEFAULT_LOADER_URL;
 esriConfig.workers.loaderConfig = {

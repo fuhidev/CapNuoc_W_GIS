@@ -1,5 +1,5 @@
 export const BASEMAP = {
-  INDEX_HANH_CHINH: 2
+  INDEX_HANH_CHINH: 5
 };
 
 export const SERVICE_PRINT =
@@ -35,7 +35,7 @@ export const LAYER = {
   TUYEN_DAY_DIEN_NOI: 'tuyendaydiennoiLYR',
   TUYEN_ONG_THOAT_NUOC: 'tuyenongthoatnuocLYR',
   VAN: 'vanLYR',
-  DIEM_SU_CO: 'sucoLYR'
+  DIEM_SU_CO: 'diemsucoLYR'
 };
 export const MAP = {
   CENTER: [105.940810, 10.251717],

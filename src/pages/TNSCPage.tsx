@@ -1,17 +1,16 @@
 // REACT
 import * as React from 'react';
 import BasePage from './BasePage';
-import { createStyles, WithStyles, withStyles, LinearProgress, Tabs, Tab } from '@material-ui/core';
+import { createStyles, WithStyles, withStyles, LinearProgress } from '@material-ui/core';
 import MapComponent from '../components/TiepNhanSuCo/MapComponent';
 import FormComponent from '../components/TiepNhanSuCo/FormComponent';
-import ChuyenDonVi from '../components/TiepNhanSuCo/DonVi';
 
-//Redux
-import { initViewDiv } from '../actions/index'
+// Redux
+import { initViewDiv } from '../actions/index';
 import { connect } from 'react-redux';
 import { AllModelReducer } from '../reducers';
 import { alertActions } from '../services/main/action';
-import { phanAnhSuCo, chuyenDonViTiepNhan,setLayer } from '../services/map/action';
+import { phanAnhSuCo, setLayer } from '../services/map/action';
 
 // APP
 import LayerInfo from '../models/LayerInfo';
@@ -29,26 +28,23 @@ import { Model } from '../services/map/SuCo/model';
 
 const styles = createStyles({
   root: {
+    width: '100%',
+    height: '100%',
     display: 'flex',
     flexDirection: 'row'
   },
   formContainer: {
     width: 500,
-    height: '100vh',
+    height: '100%',
     overflow: 'auto',
   },
   mapContainer: {
     flexGrow: 1,
-    height: '100vh'
+    height: '100%'
   },
 });
 
-enum TabIndex {
-  ThongTin, ChuyenTiep
-};
-
 type States = {
-  tabIndex: number,
   maSuCo: string
 };
 
@@ -56,14 +52,13 @@ type StateToProps = {
   layerInfos?: LayerInfo[],
   view?: __esri.MapView | __esri.SceneView,
   newIDSuCo?: string
-}
+};
 
 type DispatchToProps = {
   initViewDiv: (div: HTMLDivElement) => void,
   alertError: (message: string) => void,
-  phanAnhSuCo: ( model: Model, geometry: __esri.Point) => Promise<boolean>,
-  chuyenDonVi: (maSuCo: string, maDonVi: string) => Promise<boolean>,
-  setLayer:(layer:FeatureLayer)=>void
+  phanAnhSuCo: (model: Model, geometry: __esri.Point) => Promise<boolean>,
+  setLayer: (layer: FeatureLayer) => void
 };
 
 type Props = {
@@ -74,7 +69,7 @@ class TNSCPage extends BasePage<Props, States> {
   constructor(props: any) {
     super(props);
     this.state = {
-      tabIndex: TabIndex.ThongTin, maSuCo: ''
+      maSuCo: ''
     };
   }
 
@@ -84,44 +79,27 @@ class TNSCPage extends BasePage<Props, States> {
     }
 
     // cập nhật mã sự cố khi thay đổi newIDSuCo
-    if (props.newIDSuCo && props.newIDSuCo != this.props.newIDSuCo) {
+    if (props.newIDSuCo && props.newIDSuCo !== this.props.newIDSuCo) {
       this.setState({ maSuCo: props.newIDSuCo });
     }
   }
 
   render() {
     const { view, classes, newIDSuCo } = this.props;
-    const { tabIndex: isChuyenDonVi, maSuCo } = this.state;
     let layer: FeatureLayer | undefined = undefined;
-    if (view) layer = view.map.findLayerById(CST_LAYER.DIEM_SU_CO) as FeatureLayer;
+    if (view) { layer = view.map.findLayerById(CST_LAYER.DIEM_SU_CO) as FeatureLayer; }
     return (
       <div className={classes.root}>
         <div className={classes.formContainer}>
           {!layer && <LinearProgress />}
-          <Tabs
-            value={isChuyenDonVi}
-            onChange={(e, newValue) => this.setState({ tabIndex: newValue })}
-          >
-            <Tab label="Thông tin" />
-            <Tab label="Chuyển tiếp" />
-          </Tabs>
-          {view && layer && isChuyenDonVi === TabIndex.ThongTin &&
+          {view && layer &&
             <FormComponent
               view={view}
               layer={layer}
               onChangePoint={this.onChangePoint.bind(this)}
               newIDSuCo={newIDSuCo}
               phanAnh={this.phanAnhSuCo.bind(this)}
-              chuyenDonVi={() => this.setState({ tabIndex: TabIndex.ChuyenTiep })}
             />}
-          {isChuyenDonVi == TabIndex.ChuyenTiep &&
-            <ChuyenDonVi
-              onClose={() => this.setState({ tabIndex: TabIndex.ThongTin })}
-              onSubmit={this.submitChuyenDonVi.bind(this)}
-              onChangeMaSuCo={(value) => this.setState({ maSuCo: value })}
-              maSuCo={maSuCo}
-            />
-          }
         </div>
         <div className={classes.mapContainer}>
           <MapComponent
@@ -137,7 +115,6 @@ class TNSCPage extends BasePage<Props, States> {
   private loadMapDiv(div: HTMLDivElement) {
     this.props.initViewDiv(div);
   }
-
 
   private initFL(layerInfos: LayerInfo[]) {
     try {
@@ -158,8 +135,6 @@ class TNSCPage extends BasePage<Props, States> {
           this.props.setLayer(layerSuCo);
         }
       }
-
-
 
       return true;
     } catch (error) {
@@ -190,11 +165,13 @@ class TNSCPage extends BasePage<Props, States> {
       } else {
         view.graphics.remove(oldGraphic);
         newGraphic = oldGraphic.clone();
-        if (point)
+        if (point) {
           newGraphic.geometry = point;
+        }
       }
-      if (point)
+      if (point) {
         view.graphics.add(newGraphic);
+      }
 
     }
   }
@@ -205,21 +182,7 @@ class TNSCPage extends BasePage<Props, States> {
    * @param geometry Vị trí
    */
   private phanAnhSuCo(model: Model, geometry: __esri.Point): Promise<boolean> {
-      return this.props.phanAnhSuCo(model, geometry);
-  }
-
-  /**
-   * Chuyển sự cố cho đơn vị
-   */
-  private async submitChuyenDonVi(donVi: string): Promise<boolean> {
-    const { newIDSuCo } = this.props;
-    if (newIDSuCo) {
-      const isSuccess = await this.props.chuyenDonVi(newIDSuCo, donVi);
-      // nếu thành công thì tắt màn hình chuyển đổi đơn vị
-      isSuccess && this.setState({ tabIndex: TabIndex.ThongTin });
-      return isSuccess;
-    }
-return false;
+    return this.props.phanAnhSuCo(model, geometry);
   }
 }
 
@@ -234,7 +197,6 @@ export default connect(mapStateToProps,
     initViewDiv,
     alertError: alertActions.error,
     phanAnhSuCo,
-    chuyenDonVi: chuyenDonViTiepNhan,
     setLayer
   })
   (

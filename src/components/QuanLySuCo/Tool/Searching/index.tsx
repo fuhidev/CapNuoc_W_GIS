@@ -6,15 +6,14 @@ import {
 import SearchingForm from './SearchingForm';
 import ActionComponent from './ActionComponent';
 
-
-//Redux
+// Redux
 import { timKiem } from '../../../../services/map/SuCo/action';
 import { alertActions } from '../../../../services/main/action';
 import { connect } from 'react-redux';
 
-//Esri
+// Esri
 import FeatureLayer from '../../../../map-lib/layers/FeatureLayer';
-import { LinhVuc, ModelConstant } from '../../../../services/map/SuCo/model';
+import { ThongTinPhanAnh, ModelConstant } from '../../../../services/map/SuCo/model';
 import * as queryHelper from '../../../../map-lib/support/queryHelper';
 import { AllModelReducer } from '../../../../reducers';
 
@@ -31,8 +30,8 @@ type State = {
   sdtNguoiPhanAnh?: string,
   tgPhanAnhFrom?: Date,
   tgPhanAnhTo?: Date,
-  linhVuc?: LinhVuc,
-  linhVucValues?: __esri.CodedValueDomainCodedValues[]
+  thongTinPhanAnh?: ThongTinPhanAnh,
+  thongTinPhanAnhValues?: __esri.CodedValueDomainCodedValues[]
 };
 
 type StateToProps = {
@@ -42,7 +41,7 @@ type StateToProps = {
 type DispatchToProps = {
   search: (where: string) => void,
   alertError: (message: string) => void,
-}
+};
 
 type Props = {
 }
@@ -58,16 +57,15 @@ class SearchingComponent extends BaseComponent<Props, State>{
 
   componentWillReceiveProps(props: Props) {
     // nếu nhận được layer và chưa load dm lĩnh vực
-    if (props.layerSuCo != this.props.layerSuCo && !this.state.linhVucValues) {
-      this.loadDMLinhVuc();
+    if (props.layerSuCo !== this.props.layerSuCo && !this.state.thongTinPhanAnhValues) {
+      this.loadDMThongTinPhanAnh();
     }
   }
   render() {
-    if (!this.props.layerSuCo)
-      return <LinearProgress />
+    if (!this.props.layerSuCo) { return <LinearProgress />; }
     const { classes } = this.props;
     const { maSuCo, sdtNguoiPhanAnh, tgPhanAnhFrom, tgPhanAnhTo,
-      linhVuc, linhVucValues } = this.state;
+      thongTinPhanAnh, thongTinPhanAnhValues } = this.state;
 
     return <div className={classes.root}>
       <Typography variant="h6">Nhập nội dung tìm kiếm</Typography>
@@ -77,8 +75,8 @@ class SearchingComponent extends BaseComponent<Props, State>{
         tgPhanAnhFrom={tgPhanAnhFrom}
         tgPhanAnhTo={tgPhanAnhTo}
         onChange={this.onItemFormChange.bind(this)}
-        linhVucValues={linhVucValues || []}
-        linhVuc={linhVuc}
+        thongTinPhanAnhValues={thongTinPhanAnhValues || []}
+        thongTinPhanAnh={thongTinPhanAnh}
       />
       <div className={classes.actionContainer}>
         <ActionComponent
@@ -86,23 +84,22 @@ class SearchingComponent extends BaseComponent<Props, State>{
           onSearch={this.onSearch.bind(this)}
         />
       </div>
-
-    </div>
+    </div>;
   }
 
   /**
    * Tải domain lĩnh vực
    */
-  private loadDMLinhVuc() {
+  private loadDMThongTinPhanAnh() {
     const layer = this.props.layerSuCo;
     if (layer) {
       layer.when(() => {
-        let dmLinhVuc = layer.types.map(m => ({ code: m.id.toString(), name: m.name } as __esri.CodedValueDomainCodedValues));
-        if (!dmLinhVuc)
+        let dmThongTinPhanAnh = (layer.getFieldDomain(ModelConstant.ThongTinPhanAnh) as __esri.CodedValueDomain);
+        if (!dmThongTinPhanAnh) {
           this.props.alertError('Không xác định được domain thuộc tính ' +
-            (layer.fields.find(f => f.name === ModelConstant.LinhVuc) as __esri.Field).alias);
-        else
-          this.setState({ linhVucValues: dmLinhVuc })
+            (layer.fields.find(f => f.name === ModelConstant.ThongTinPhanAnh) as __esri.Field).alias);
+        }
+        else { this.setState({ thongTinPhanAnhValues: dmThongTinPhanAnh.codedValues }); }
       });
     }
   }
@@ -110,21 +107,21 @@ class SearchingComponent extends BaseComponent<Props, State>{
   private onSearch() {
     let whereArray = [];
     const { maSuCo, sdtNguoiPhanAnh, tgPhanAnhFrom, tgPhanAnhTo,
-      linhVuc } = this.state;
+      thongTinPhanAnh } = this.state;
     if (maSuCo) {
-      whereArray.push(`MaSuCo like '%${maSuCo}%'`);
+      whereArray.push(`${ModelConstant.IDSuCo} like '%${maSuCo}%'`);
     }
     if (sdtNguoiPhanAnh) {
-      whereArray.push(`SDTNguoiPhanAnh like '%${sdtNguoiPhanAnh}%'`);
+      whereArray.push(`${ModelConstant.SDTPhanAnh} like '%${sdtNguoiPhanAnh}%'`);
     }
     if (tgPhanAnhFrom) {
-      whereArray.push(`TGPhanAnh >= date'${queryHelper.formatDate(tgPhanAnhFrom)}`);
+      whereArray.push(`${ModelConstant.TGPhanAnh} >= date'${queryHelper.formatDate(tgPhanAnhFrom)}`);
     }
     if (tgPhanAnhTo) {
-      whereArray.push(`TGPhanAnh <= date'${queryHelper.formatDate(tgPhanAnhTo)}`);
+      whereArray.push(`${ModelConstant.TGPhanAnh} <= date'${queryHelper.formatDate(tgPhanAnhTo)}`);
     }
-    if (linhVuc) {
-      whereArray.push(`LinhVuc='${linhVuc}'`)
+    if (thongTinPhanAnh) {
+      whereArray.push(`${ModelConstant.ThongTinPhanAnh}='${thongTinPhanAnh}'`);
     }
     this.props.search(whereArray.join(' AND '));
   }
@@ -135,7 +132,7 @@ class SearchingComponent extends BaseComponent<Props, State>{
       sdtNguoiPhanAnh: undefined,
       tgPhanAnhFrom: undefined,
       tgPhanAnhTo: undefined,
-      linhVuc: undefined
+      thongTinPhanAnh: undefined
     });
   }
 
@@ -156,7 +153,5 @@ const mapDispatchToProps = (dispatch: Function): DispatchToProps => ({
   search: (where: string) => dispatch(timKiem(where)),
   alertError: (message: string) => dispatch(alertActions.error(message))
 });
-
-
 
 export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(SearchingComponent));

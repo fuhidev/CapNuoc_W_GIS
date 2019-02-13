@@ -28,7 +28,7 @@ export default class HanhChinhUtils {
         if (results.features.length === 1) {
           const feature = results.features[0];
           return {
-            MaPhuong: feature.attributes.MaHanhChinh,
+            MaPhuong: feature.attributes.IDHanhChinh,
             MaQuan: feature.attributes.MaHuyen,
             TenPhuong: feature.attributes.TenHanhChinh,
             TenQuan: feature.attributes.TenHuyen

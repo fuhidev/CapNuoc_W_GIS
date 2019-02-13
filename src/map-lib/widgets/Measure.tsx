@@ -1,15 +1,15 @@
 import * as React from 'react';
-import MeasureAreaViewModel from './Measure/MeasureAreaViewModel'
-import MeasureDistanceViewModel from './Measure/MeasureDistanceViewModel'
+import MeasureAreaViewModel from './Measure/MeasureAreaViewModel';
+import MeasureDistanceViewModel from './Measure/MeasureDistanceViewModel';
 
-import { Menu, MenuItem, Paper, ListItem, List, ListItemText } from '@material-ui/core';
+import { Paper, ListItem, List, ListItemText } from '@material-ui/core';
 type Props = {
   view: __esri.MapView;
 };
 
 export enum MeasureMode {
   DISTANCE, AREA
-};
+}
 
 type States = {
   mode: MeasureMode | null,
@@ -33,7 +33,7 @@ export default class MeasureComponent extends React.Component<Props, States> {
   }
 
   componentDidMount() {
-    this.props.view.on('click', this.onViewRightClick.bind(this))
+    this.props.view.on('click', this.onViewRightClick.bind(this));
   }
   private onViewRightClick(e: __esri.MapViewClickEvent) {
     // 2 là nhán chuột phải
@@ -41,7 +41,7 @@ export default class MeasureComponent extends React.Component<Props, States> {
       e.stopPropagation();
       this.setState({ visible: true, coords: { x: e.x, y: e.y } });
     } else {
-      this.setState({ visible: false })
+      this.setState({ visible: false });
     }
   }
 
@@ -108,5 +108,3 @@ export default class MeasureComponent extends React.Component<Props, States> {
     });
   }
 }
-
-

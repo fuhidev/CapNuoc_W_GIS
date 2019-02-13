@@ -7,7 +7,7 @@ import Searching from './Tool/Searching/index';
 import ListComponent from './Tool/List/index';
 
 import { Tabs, Tab, createStyles, WithStyles, withStyles, Theme, Badge } from '@material-ui/core';
-import { TinhTrang } from '../../services/map/SuCo/model';
+import { TrangThai } from '../../services/map/SuCo/model';
 import { connect } from 'react-redux';
 import { AllModelReducer } from '../../reducers';
 
@@ -91,7 +91,7 @@ class ToolComponent extends BaseComponent<Props, State> {
 }
 
 const mapStateToProps = (state: AllModelReducer): StateToProps => ({
-  lengthMTN: state.mapSuCo.items.filter(f => f.TinhTrang == TinhTrang.MoiTiepNhan).length
+  lengthMTN: state.mapSuCo.items.filter(f => f.TinhTrang == TrangThai.MoiTiepNhan).length
 });
 
 export default connect(mapStateToProps, null)(withStyles(styles)(ToolComponent));

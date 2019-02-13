@@ -1,20 +1,19 @@
 import * as React from 'react';
-import { TextField, FormControl, InputLabel, Select, MenuItem } from "@material-ui/core";
+import { TextField, FormControl, InputLabel, Select, MenuItem } from '@material-ui/core';
 
-import { LinhVuc } from "../../../../services/map/SuCo/model";
+import { ThongTinPhanAnh } from '../../../../services/map/SuCo/model';
 import GroupComponent from '../../../material-ui/Group';
 import DatePicker, { TimeType } from '../../../material-ui/DatePicker';
 
-
 const SearchingForm = (props: {
   onChange: (name: string, value: any) => void,
-    maSuCo?: string,
-    sdtNguoiPhanAnh?: string,
-    tgPhanAnhFrom?: Date,
-    tgPhanAnhTo?: Date,
-    linhVuc?: LinhVuc,
-    linhVucValues: __esri.CodedValueDomainCodedValues[]
-} ) => {
+  maSuCo?: string,
+  sdtNguoiPhanAnh?: string,
+  tgPhanAnhFrom?: Date,
+  tgPhanAnhTo?: Date,
+  thongTinPhanAnh?: ThongTinPhanAnh,
+  thongTinPhanAnhValues: __esri.CodedValueDomainCodedValues[]
+}) => {
   return <div>
     <FlexComponent>
       <TextField
@@ -22,7 +21,7 @@ const SearchingForm = (props: {
         value={props.maSuCo || ''}
         label="Mã sự cố"
         fullWidth={true}
-        onChange={(e: React.ChangeEvent<HTMLInputElement>) => props.onChange("maSuCo", e.target.value)}
+        onChange={(e: React.ChangeEvent<HTMLInputElement>) => props.onChange('maSuCo', e.target.value)}
       />
       <TextField
         name="sdtNguoiPhanAnh"
@@ -30,7 +29,7 @@ const SearchingForm = (props: {
         label="SĐT người phản ánh"
         fullWidth={true}
         type="number"
-        onChange={(e: React.ChangeEvent<HTMLInputElement>) => props.onChange("sdtNguoiPhanAnh", e.target.value)}
+        onChange={(e: React.ChangeEvent<HTMLInputElement>) => props.onChange('sdtNguoiPhanAnh', e.target.value)}
       />
     </FlexComponent>
     <GroupComponent
@@ -55,28 +54,27 @@ const SearchingForm = (props: {
     <FormControl fullWidth >
       <InputLabel htmlFor="linhvuc-suco">Lĩnh vực</InputLabel>
       <Select
-      name="linhvuc-suco"
+        name="linhvuc-suco"
         fullWidth={true}
-        value={props.linhVuc !== undefined?props.linhVuc : ''}
+        value={props.thongTinPhanAnh !== undefined ? props.thongTinPhanAnh : ''}
         onChange={(event: React.ChangeEvent<HTMLSelectElement>) => props.onChange('linhVuc', event.target.value)}
       >
         <MenuItem value="">
           <em>None</em>
         </MenuItem>
-        {props.linhVucValues &&
-          props.linhVucValues.map(m =>
+        {props.thongTinPhanAnhValues &&
+          props.thongTinPhanAnhValues.map(m =>
             <MenuItem key={m.code} value={m.code}>{m.name}</MenuItem>)
         }
       </Select>
     </FormControl>
-  </div>
+  </div>;
 };
-
 
 const FlexComponent = (props: React.Props<any>) => (
   <div style={{ display: 'flex', flexDirection: 'row' }}>
     {props.children}
   </div>
-)
+);
 
 export default SearchingForm;

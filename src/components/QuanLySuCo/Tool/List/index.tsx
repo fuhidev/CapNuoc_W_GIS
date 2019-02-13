@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { withStyles, createStyles, WithStyles, List, ListItem, Avatar, ListItemText, Tooltip } from '@material-ui/core';
-import { Model, TinhTrang } from '../../../../services/map/SuCo/model';
+import { Model, TrangThai } from '../../../../services/map/SuCo/model';
 import { AllModelReducer } from '../../../../reducers';
 import { connect } from 'react-redux';
 import * as moment from 'moment/moment';
@@ -71,7 +71,7 @@ class ListComponent extends React.Component<Props, {}>{
 };
 
 const mapStateToProps = (state: AllModelReducer): StateToProps => ({
-  datas: state.mapSuCo.items.filter(f => f.TinhTrang == TinhTrang.MoiTiepNhan),
+  datas: state.mapSuCo.items.filter(f => f.TinhTrang == TrangThai.MoiTiepNhan),
   view:state.map.view,
   layer:state.mapSuCo.layer
 });

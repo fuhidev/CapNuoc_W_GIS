@@ -14,10 +14,10 @@ import { composeWithDevTools } from 'redux-devtools-extension/developmentOnly';
 import thunkMiddleware from 'redux-thunk';
 import loggerMiddleware from 'redux-logger';
 import createRootReducer, { initialState } from './reducers';
-import { routerMiddleware, ConnectedRouter } from 'connected-react-router'
+import { routerMiddleware, ConnectedRouter } from 'connected-react-router';
 
 // App
-import { version } from './appconfig'; 
+import { version } from './appconfig';
 import versionmanager from './modules/version';
 import Auth from './modules/Auth';
 import * as moment from 'moment/moment';
@@ -30,14 +30,13 @@ moment.locale('vi');
 //   dsn: "https://ba38334919274e11a7e384cf4528de70@sentry.io/1365472"
 //  });
 
-
 // VERSION
 if (!versionmanager.equalVersion(version)) {
   Auth.deauthenticateUser();
   versionmanager.setVersion(version);
-};
+}
 
-//MUI THEME
+// MUI THEME
 const theme = createMuiTheme({
   palette: {
     primary: {
@@ -55,7 +54,7 @@ const theme = createMuiTheme({
 // ROUTER
 const history = createBrowserHistory();
 
-//REDUX
+// REDUX
 const store = createStore(
   createRootReducer(history), // root reducer with router state
   initialState,
@@ -65,27 +64,16 @@ const store = createStore(
       thunkMiddleware, loggerMiddleware
     ),
   ),
-)
+);
 
-//RENDER
-try {
-  ReactDOM.render(
+// RENDER
+ReactDOM.render(
   <Provider store={store}>
     <ConnectedRouter history={history}>
-    <MuiThemeProvider theme={theme}>
-      <AppPage />
+      <MuiThemeProvider theme={theme}>
+        <AppPage />
       </MuiThemeProvider>
     </ConnectedRouter>
   </Provider>
   ,
   document.querySelector('#root'));
-
-} catch (error) {
-  alert('e')
-  // Sentry.withScope(scope => {
-  //   Object.keys(error).forEach(key => {
-  //     scope.setExtra(key, error[key]);
-  //   });
-  //   Sentry.captureException(error);
-  // });
-}

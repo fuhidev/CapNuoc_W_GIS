@@ -1,26 +1,14 @@
-import Auth from "../modules/Auth";
-
-interface FetchResponse{
-  status:number,data:any
+interface FetchResponse {
+  status: number; data: any;
 }
 
-export default function _fetch(url: string, options?: RequestInit):Promise<FetchResponse> {
+export default function _fetch(url: string, options?: RequestInit): Promise<FetchResponse> {
   // performs api calls sending the required authentication headers
-  const headers = {
-    'Accept': 'application/json',
-    'Content-Type': 'application/json'
-  }
-
-  if (Auth.isUserAuthenticated()) {
-    headers['Authorization'] = Auth.getToken();
-  } else {
-    Auth.deauthenticateUser();
-    location.href = '/login';
-  }
+  const headers = new Headers(options && options.headers);
 
   return fetch(url, {
-    headers,
-    ...options
+    ...options,
+    headers
   })
     .then(res => res.json().then(data => ({ status: res.status, data } as FetchResponse)))
     .then(res => {

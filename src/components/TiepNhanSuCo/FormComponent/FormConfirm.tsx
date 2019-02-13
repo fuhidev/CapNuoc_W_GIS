@@ -2,23 +2,23 @@ import * as React from 'react';
 import BaseComponent from '../../BaseComponent';
 
 type Props = {
-	hoVaTen?: string,
-	soDienThoai?: string,
-	diaChi?: string,
-	linhVuc?: string
+  hoVaTen?: string,
+  soDienThoai?: string,
+  diaChi?: string,
+  thongTinPhanAnh?: string
 };
 
 export default class FormInput extends BaseComponent<Props, {}> {
-	render() {
-		const {
-			className,
-			hoVaTen,
-			diaChi,
-			linhVuc,
-			soDienThoai,
-		} = this.props;
-		return <div className={className}>
-			<div style={{ marginTop: 10 }} >
+  render() {
+    const {
+      className,
+      hoVaTen,
+      diaChi,
+      thongTinPhanAnh,
+      soDienThoai,
+    } = this.props;
+    return <div className={className}>
+      <div style={{ marginTop: 10 }} >
         <p>
           Người thông báo: <strong>{hoVaTen}</strong>
         </p>
@@ -32,10 +32,9 @@ export default class FormInput extends BaseComponent<Props, {}> {
           Địa chỉ: <strong>{diaChi}</strong>
         </p>
         <p>
-          Lĩnh vực: <strong>{linhVuc}</strong>
+          Thông tin phản ánh: <strong>{thongTinPhanAnh}</strong>
         </p>
       </div>
-		</div>
-	}
+    </div>;
+  }
 }
-

@@ -16,7 +16,7 @@ import LayerInfo from '../../models/LayerInfo';
 import layerUtils from '../../map-lib/support/LayerHelper';
 
 type Props = {
-  view?: __esri.MapView|__esri.SceneView,
+  view?: __esri.MapView | __esri.SceneView,
   loadMapDiv: (mapDiv: HTMLDivElement) => void,
   layerInfos?: LayerInfo[],
 };
@@ -24,7 +24,7 @@ type States = {
 };
 
 class MapComponent extends React.Component<Props, States> {
-  private mapDiv: HTMLDivElement;
+  private mapDiv: HTMLDivElement | null = null;
 
   constructor(props: Props) {
     super(props);
@@ -41,7 +41,7 @@ class MapComponent extends React.Component<Props, States> {
   }
 
   componentDidMount() {
-    this.props.loadMapDiv(this.mapDiv);
+    if (this.mapDiv) { this.props.loadMapDiv(this.mapDiv); }
   }
 
   private initWidget(props: Props) {
@@ -121,8 +121,8 @@ class MapComponent extends React.Component<Props, States> {
 
   render() {
     return (
-      <div>
-        <div className="mapDiv"
+      <div className="mapDiv">
+        <div
           ref={
             (element: HTMLDivElement) => this.mapDiv = element
           }

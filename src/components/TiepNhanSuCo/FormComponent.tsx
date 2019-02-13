@@ -126,7 +126,7 @@ class FormComponent extends React.Component<Props, States> {
     try {
       // cập nhật sự cố
       const { view } = this.props;
-      const { viTri, diaChi, hoVaTen, soDienThoai, thongTinPhanAnh: linhVuc, ghiChu: noiDung } = this.state;
+      const { viTri, diaChi, hoVaTen, soDienThoai, thongTinPhanAnh, ghiChu } = this.state;
 
       if (!viTri) { throw MSG.ChuaChonViTri; }
       if (!diaChi) { throw MSG.ChuaNhapDiaChi; }
@@ -139,12 +139,12 @@ class FormComponent extends React.Component<Props, States> {
       return this.props.phanAnh(
         {
           NguoiPhanAnh: hoVaTen,
-          SDTNguoiPhanAnh: soDienThoai,
+          SDTPhanAnh: soDienThoai,
           DiaChi: diaChi,
-          NoiDungPhanAnh: noiDung,
-          LinhVuc: linhVuc,
+          GhiChu: ghiChu,
+          ThongTinPhanAnh: thongTinPhanAnh,
           MaPhuongXa: hanhChinh.MaPhuong, MaHuyenTP: hanhChinh.MaQuan
-        } as any,
+        } as Model,
         viTri
       );
     } catch (error) {

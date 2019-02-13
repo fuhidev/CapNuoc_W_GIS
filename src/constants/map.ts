@@ -47,3 +47,18 @@ export const APP_LAYER = {
   qlsc: ['*'],
   tnsc: [LAYER.DIEM_SU_CO, LAYER.BASE_MAP]
 };
+
+export const FIELDS_NO_EDIT = [
+  'MaQuan',
+  'MaPhuong',
+  'OBJECTID',
+  'IDSuCo',
+  'MaDMA',
+  'GlobalID',
+  'DoiQuanLy',
+  'TGPhanAnh',
+  'created_user',
+  'created_date',
+  'last_edited_user',
+  'last_edited_date'
+];

@@ -1,6 +1,7 @@
 import PopupTemplate = require('esri/PopupTemplate');
 import Action = require('esri/support/actions/ActionButton');
 import PopupEditing from './Popup/Editing';
+import { FIELDS_NO_EDIT } from '../../constants/map';
 
 export enum PopupAction {
   EDIT,
@@ -53,10 +54,10 @@ class Popup {
    * @param layerInfo Định nghĩa những lớp hiển thị popup
    */
   private initPopup(layerInfo: LayerInfo) {
-    layerInfo.showObjectID = layerInfo.showObjectID || false;
-    layerInfo.showGlobalID = layerInfo.showGlobalID || false;
-    layerInfo.showAttachments = layerInfo.showAttachments || false;
-    layerInfo.isEditable = layerInfo.isEditable || false;
+    layerInfo.showObjectID = layerInfo.showObjectID ? layerInfo.showObjectID : false;
+    layerInfo.showGlobalID = layerInfo.showGlobalID ? layerInfo.showGlobalID : false;
+    layerInfo.showAttachments = layerInfo.showAttachments ? layerInfo.showAttachments : false;
+    layerInfo.isEditable = layerInfo.isEditable ? layerInfo.isEditable : false;
     const { layer, isEditable, showDeleteButton, showAttachments, showGlobalID, showObjectID,
       actions } = layerInfo;
     layer.when((layerView: __esri.LayerView) => {
@@ -108,6 +109,27 @@ class Popup {
           // lọc danh sách field có trong outFields
           _fields = layer.fields.filter(f => layer.outFields.indexOf(f.name) !== -1);
         }
+
+        _fields = _fields
+          .filter(field => {
+
+            // không cho phép hiển thị objectid
+            if (field && field.type === 'oid' && !showObjectID) {
+              return false;
+            }
+            // không cho phép hiển thị global id
+            else if (field && field.type === 'global-id' && !showGlobalID) {
+              return false;
+            }
+            if (field) {
+              if (FIELDS_NO_EDIT.indexOf(field.name) !== -1) {
+                return null;
+              }
+              return true;
+            } else {
+              return false;
+            }
+          });
         layerFields = _fields.map(m => {
           return {
             name: m.name,
@@ -121,28 +143,10 @@ class Popup {
         layerInfo.layerFields = layerFields;
       }
       // lấy fields để nhận name và alias
-      let fields = layerFields
-        .map(m => {
-          let field = layer.fields.find(f => (
-            (f.name === m.name)
-            && ((showObjectID && f.type !== 'oid')
-              || (!showObjectID)
-            )
-            && ((showGlobalID && f.type !== 'global-id')
-              || (!showGlobalID)
-            )
-          ));
-          if (field) {
-            return field;
-          } else {
-            return null;
-          }
-        })
-        .filter(f => f !== null) as __esri.Field[];
 
       let content = [{
         type: 'fields',
-        fieldInfos: fields.map((m) => {
+        fieldInfos: layerFields.map((m) => {
           return {
             fieldName: m.name,
             label: m.alias,

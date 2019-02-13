@@ -4,12 +4,13 @@ import {
   Paper, IconButton, Tooltip, Table, TableHead, TableRow, TableCell, TableBody,
   WithStyles, withStyles, createStyles, Theme
 } from '@material-ui/core';
+import AutoComplete from '../material-ui/AutoComplete';
 // Redux
 import { connect } from 'react-redux';
 import { AllModelReducer } from '../../reducers';
 import { emptyInfos } from '../../services/map/SuCo/action';
 
-import { Model } from '../../services/map/SuCo/model';
+import { Model, ModelConstant } from '../../services/map/SuCo/model';
 import FeatureLayer from '../../map-lib/layers/FeatureLayer';
 
 import * as moment from 'moment/moment';
@@ -119,11 +120,31 @@ class InfoTableComponent extends React.Component<Props, State> {
                     columns.map((m, index) => {
                       if (index === 0) {
                         return <TableCell key={row.IDSuCo + '_' + m.Name} component="th" scope="row">
-                        {row[m.Name]}
+                          {row[m.Name]}
                         </TableCell>;
                       }
                       return <TableCell key={row.IDSuCo + '_' + m.Name} >
                         {/* <Tooltip title={row[m.Name] || 'Không có giá trị'}> */}
+                        {/* {m.Name === ModelConstant.NhomKhacPhuc
+                          &&
+                          <div>
+                            <AutoComplete
+                              name="nhomkhacphuc"
+                              searchText={m.NhomKhacPhuc}
+                              onUpdateInput={(value: string) => {
+                                this.props.onChangeNhomKhacPhuc(m.IDSuCo, value)
+                              }}
+                              onBlur={() => {
+                                this.setState({ loading: { ...this.state.loading, updatingNhomKhacPhuc: true } });
+                                this.props.updateNhomKhacPhuc(m.OBJECTID, m.NhomKhacPhuc)
+                                  .then(isSuccess => this.setState({ loading: { ...this.state.loading, updatingNhomKhacPhuc: false } }))
+                              }}
+                              filter={AutoComplete.fuzzyFilter}
+                              openOnFocus={true}
+                              dataSource={nhomKhacPhucDatas}
+                            />
+                          </div>
+                        } */}
                         {row[m.Name]}
                         {/* </Tooltip> */}
                       </TableCell>;

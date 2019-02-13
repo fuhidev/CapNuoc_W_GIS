@@ -110,8 +110,8 @@ class MapComponent extends BaseComponent<Props, States> {
             }
 
             if (layerInfo) {
-              // isEditable = layerInfo.IsEdit;
-              // showDeleteButton = layerInfo.IsDelete;
+              isEditable = layerInfo.IsEdit;
+              showDeleteButton = layerInfo.IsDelete;
             }
 
             return {

@@ -81,7 +81,7 @@ class EditingComponent extends React.Component<Props, States> {
       if (subtype) {
         // lọc fieldName để cập nhật lại giá trị
         for (const fieldName in subtype.domains) {
-          if (fieldName && fieldName != name) {
+          if (fieldName && fieldName !== name) {
             attributes[fieldName] = null;
           }
         }
@@ -161,9 +161,8 @@ class EditingComponent extends React.Component<Props, States> {
             <span className="esri-icon-check-mark"></span>
           </Button>
         </div>
+        layer.hasAttachments &&
         <Typography variant="title">Tệp đính kèm</Typography>
-        {
-          layer.hasAttachments &&
           <div>
             <form encType="multipart/form-data" method="post"
               onChange={this.capNhatHinhAnh.bind(this)}

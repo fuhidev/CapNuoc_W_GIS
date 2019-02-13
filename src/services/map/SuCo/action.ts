@@ -3,7 +3,6 @@ import { MapSuCoAction } from './EAction';
 import { MapSuCoActionType } from './action-types';
 import { loading, alertActions } from '../../main/action';
 import MSG from '../../../constants/MSG';
-import { layIDSuCo } from '../../api/SuCoApi';
 import Auth from '../../../modules/Auth';
 import { SEARCH_OUTFIELDS, TrangThai, Model, ModelConstant } from './model';
 // Esri
@@ -88,12 +87,9 @@ export const phanAnhSuCo = (info: Model, geometry: __esri.Point
       try {
         dispatch(loading.loadingReady());
         const user = Auth.getUser(); // Lây user
-        const id = await layIDSuCo();
 
         // tạo attributes
         const attributes = {
-          IDSuCo: id,
-          TGPhanAnh: new Date().getTime() as any,
           TrangThai: TrangThai.MoiTiepNhan,
           SDTPhanAnh: info.SDTPhanAnh,
           NguoiPhanAnh: info.NguoiPhanAnh,
@@ -119,6 +115,7 @@ export const phanAnhSuCo = (info: Model, geometry: __esri.Point
 
         if (result.addFeatureResults[0].error) { throw new Error(result.addFeatureResults[0].error); }
         else {
+          const id = await layIDSuCo(layer, result.addFeatureResults[0].objectId);
           dispatch(alertActions.success('Mã sự cố: ' + id)); // thông báo
           dispatch(newIdSuCo(id));
           return true;
@@ -137,6 +134,19 @@ export const phanAnhSuCo = (info: Model, geometry: __esri.Point
   };
 
   function newIdSuCo(id: string): MapSuCoAction { return { type: MapSuCoActionType.NEW_ID_SUCO, id }; }
+  function layIDSuCo(layer: FeatureLayer, objectId: number): Promise<string> {
+    return new Promise((resolve, reject) => {
+      layer.queryFeatures({
+        where: `OBJECTID = ${objectId}`,
+        outFields: [ModelConstant.IDSuCo],
+        returnGeometry: false
+      })
+        .then(results => {
+          const feature = results.features[0];
+          resolve(feature.attributes[ModelConstant.IDSuCo]);
+        });
+    });
+  }
 };
 
 export const setLayer = (layer: FeatureLayer) => {

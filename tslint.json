@@ -68,11 +68,11 @@
         "no-unused-expression": false,
         "no-use-before-declare": false,
         "one-line": [
-            false,
+            true,
             // "check-catch",
             // "check-else",
-            "check-open-brace",
-            "check-whitespace"
+            // "check-open-brace",
+            // "check-whitespace"
         ],
         "quotemark": [
             true,

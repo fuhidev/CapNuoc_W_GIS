@@ -4,7 +4,6 @@ import {
   Paper, IconButton, Tooltip, Table, TableHead, TableRow, TableCell, TableBody,
   WithStyles, withStyles, createStyles, Theme
 } from '@material-ui/core';
-import AutoComplete from '../material-ui/AutoComplete';
 // Redux
 import { connect } from 'react-redux';
 import { AllModelReducer } from '../../reducers';
@@ -21,10 +20,13 @@ const styles = (theme: Theme) => createStyles({
   root: {
     width: '100%',
     marginTop: theme.spacing.unit * 3,
+    height: '100%',
     overflowX: 'auto',
   },
   table: {
     minWidth: 700,
+    width: '100%',
+    overflow: 'auto'
   },
   tableRow: {
     cursor: 'pointer',
@@ -92,7 +94,7 @@ class InfoTableComponent extends React.Component<Props, State> {
       <Paper style={{
         position: 'relative',
         //  bottom: -0, left: 10, 
-        height: 320,
+        height: '100%',
         // maxWidth: 1024,
         // width: 'calc(100% - 400px)'
         width: '100%'
@@ -137,7 +139,8 @@ class InfoTableComponent extends React.Component<Props, State> {
                               onBlur={() => {
                                 this.setState({ loading: { ...this.state.loading, updatingNhomKhacPhuc: true } });
                                 this.props.updateNhomKhacPhuc(m.OBJECTID, m.NhomKhacPhuc)
-                                  .then(isSuccess => this.setState({ loading: { ...this.state.loading, updatingNhomKhacPhuc: false } }))
+                                  .then(isSuccess => 
+                                    this.setState({ loading: { ...this.state.loading, updatingNhomKhacPhuc: false } }))
                               }}
                               filter={AutoComplete.fuzzyFilter}
                               openOnFocus={true}

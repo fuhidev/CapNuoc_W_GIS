@@ -10,6 +10,7 @@ import BasemapToggle = require('esri/widgets/BasemapToggle');
 import * as Popup from '../../map-lib/widgets/Popup';
 import Action = require('esri/support/actions/ActionButton');
 import { LAYER as CST_LAYER } from '../../constants/map';
+import AddingComponent from './Widget/AddingComponent';
 
 // APP
 import LayerInfo from '../../models/LayerInfo';
@@ -164,12 +165,24 @@ class MapComponent extends BaseComponent<Props, States> {
   }
 
   render() {
+    const { view } = this.props;
+    let layerSuCo: __esri.FeatureLayer | null = null;
+    if (view) layerSuCo = view.map.findLayerById(CST_LAYER.DIEM_SU_CO) as __esri.FeatureLayer;
     return (
-      <div className="mapDiv"
-        ref={
-          (element: HTMLDivElement) => this.mapDiv = element
+      <div className="mapDiv">
+        <div
+          ref={
+            (element: HTMLDivElement) => this.mapDiv = element
+          }
+          >
+      </div>
+        {view && layerSuCo &&
+          <AddingComponent
+            view={view}
+            layer={layerSuCo}
+            position="bottom-right"
+          />
         }
-      >
       </div>
     );
   }

@@ -9,6 +9,7 @@ import { getLayerInfos, initViewDiv } from '../actions/index';
 import MapComponent from '../components/QuanLySuCo/MapComponent';
 import InfoTableComponent from '../components/QuanLySuCo/InfoTableComponent';
 import ToolComponent from '../components/QuanLySuCo/ToolComponent';
+import AddingComponent from '../components/QuanLySuCo/Widget/AddingComponent';
 import LayerInfo from '../models/LayerInfo';
 import {
   LAYER as CST_LAYER
@@ -84,6 +85,7 @@ class QLSCPage extends BasePage<Props, States> {
 
   render() {
     const { isShowInfoTable, classes } = this.props;
+    
     return (
       <div className={classes.root}>
         <SplitterLayout primaryIndex={1} secondaryInitialSize={400}>
@@ -91,6 +93,7 @@ class QLSCPage extends BasePage<Props, States> {
             <ToolComponent />
           </div>
           <div className={classes.mapContainer}>
+           
             <SplitterLayout
               primaryIndex={0}
               secondaryInitialSize={200}

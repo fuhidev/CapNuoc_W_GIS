@@ -10,7 +10,7 @@ type Props = {
   graphic: __esri.Graphic,
   onSave: (attributes: object) => Promise<boolean>,
   capNhatHinhAnh: (form: HTMLFormElement) => Promise<__esri.FeatureEditResult>,
-} ;
+};
 
 interface States {
   attributes: object | null;
@@ -161,34 +161,35 @@ class EditingComponent extends React.Component<Props, States> {
             <span className="esri-icon-check-mark"></span>
           </Button>
         </div>
-        layer.hasAttachments &&
-        <Typography variant="title">Tệp đính kèm</Typography>
+        {layer.hasAttachments &&
           <div>
-            <form encType="multipart/form-data" method="post"
-              onChange={this.capNhatHinhAnh.bind(this)}
-            >
-              <input hidden name="f" value="json" />
-              {isLoadingThemHinhAnh && <span className="esri-icon-loading-indicator"></span>}
-              <input type="file" name="attachment" />
-            </form>
-            <div style={{ display: 'flex', flexDirection: 'column' }}>
-              {attachments.map(m =>
-                <div style={{ display: 'flex', flexDirection: 'row' }}>
-                  <a
-                    style={{ flexGrow: 1 }}
-                    title={m.name} target="_blank" key={m.id} href={m.url}>{m.name}</a>
-                  <span
-                    style={{ cursor: 'pointer' }}
-                    onClick={() => this.xoaHinhAnh(m.id)}
-                    className="esri-icon-trash"
-                  ></span>
-                </div>
-              )}
+            <Typography variant="title">Tệp đính kèm</Typography>
+            <div>
+              <form encType="multipart/form-data" method="post"
+                onChange={this.capNhatHinhAnh.bind(this)}
+              >
+                <input hidden name="f" value="json" />
+                {isLoadingThemHinhAnh && <span className="esri-icon-loading-indicator"></span>}
+                <input type="file" name="attachment" />
+              </form>
+              <div style={{ display: 'flex', flexDirection: 'column' }}>
+                {attachments.map(m =>
+                  <div style={{ display: 'flex', flexDirection: 'row' }}>
+                    <a
+                      style={{ flexGrow: 1 }}
+                      title={m.name} target="_blank" key={m.id} href={m.url}>{m.name}</a>
+                    <span
+                      style={{ cursor: 'pointer' }}
+                      onClick={() => this.xoaHinhAnh(m.id)}
+                      className="esri-icon-trash"
+                    ></span>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         }
-      </div >
-
+      </div>
     );
   }
 

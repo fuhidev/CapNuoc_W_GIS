@@ -122,9 +122,6 @@ class Popup {
               return false;
             }
             if (field) {
-              if (FIELDS_NO_EDIT.indexOf(field.name) !== -1) {
-                return null;
-              }
               return true;
             } else {
               return false;
@@ -133,7 +130,7 @@ class Popup {
         layerFields = _fields.map(m => {
           return {
             name: m.name,
-            isEditable: isEditable, // mặc định không cho chỉnh sửa,
+            isEditable: isEditable === true ? FIELDS_NO_EDIT.indexOf(m.name) !== -1 : true, // mặc định không cho chỉnh sửa,
             domain: m.domain,
             alias: m.alias,
             type: m.type
